@@ -1040,34 +1040,35 @@
             }
         },
 
-  showRegister: function() {
-    // Get token from URL params (preserve existing query params)
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get('token') || params.get('s');
-    
-    // Show register page without changing URL (keep query params)
-    document.getElementById('page-register').classList.add('active');
-    document.getElementById('mainNav').style.display = 'flex'; // Show public nav
-    
-    // Accept both GitHub tokens (sess_) and Admin tokens (mo_sess_)
-    if (!token || (!token.startsWith('sess_') && !token.startsWith('mo_sess_'))) {
-        document.getElementById('registerForm').classList.add('hidden');
-        document.getElementById('registerSuccess').classList.add('hidden');
-        document.getElementById('invalidSession').classList.remove('hidden');
-        return;
-    }
-    
-    // Store for form submission
-    window.registrationSessionId = token;
-    
-    // Reset form
-    document.getElementById('registerForm').classList.remove('hidden');
-    document.getElementById('registerSuccess').classList.add('hidden');
-    document.getElementById('invalidSession').classList.add('hidden');
-    document.getElementById('captureForm').reset();
-    document.querySelectorAll('.error-message').forEach(e => e.classList.remove('show'));
-    document.querySelectorAll('.form-input').forEach(e => e.classList.remove('error'));
-}
+        showRegister: function() {
+            // Get token from URL params
+            const params = new URLSearchParams(window.location.search);
+            const token = params.get('token') || params.get('s');
+            
+            // Show register page container
+            document.getElementById('page-register').classList.add('active');
+            document.getElementById('mainNav').style.display = 'flex';
+            
+            // CRITICAL FIX: Accept both GitHub tokens (sess_) AND Admin tokens (mo_sess_)
+            if (!token || (!token.startsWith('sess_') && !token.startsWith('mo_sess_'))) {
+                document.getElementById('registerForm').classList.add('hidden');
+                document.getElementById('registerSuccess').classList.add('hidden');
+                document.getElementById('invalidSession').classList.remove('hidden');
+                return;
+            }
+            
+            // Store for form submission
+            window.registrationSessionId = token;
+            
+            // Show form
+            document.getElementById('registerForm').classList.remove('hidden');
+            document.getElementById('registerSuccess').classList.add('hidden');
+            document.getElementById('invalidSession').classList.add('hidden');
+            document.getElementById('captureForm').reset();
+            document.querySelectorAll('.error-message').forEach(e => e.classList.remove('show'));
+            document.querySelectorAll('.form-input').forEach(e => e.classList.remove('error'));
+        }
+    };
 
     // Phone formatting
     function setupPhoneFormatting() {
@@ -1155,7 +1156,6 @@
         localStorage.removeItem('mo_session');
         localStorage.removeItem('mo_user');
         clearInterval(timerInterval);
-        // Clear URL completely and go to home
         window.location.href = window.location.pathname;
     }
 
@@ -1426,18 +1426,17 @@
         document.getElementById(`content-${tab}`).classList.add('active');
     }
 
-    // Initialize - FIXED LOGIC HERE
+    // Initialize - CRITICAL SECTION
     window.addEventListener('DOMContentLoaded', () => {
         setupPhoneFormatting();
         
-        // Check for view parameter FIRST (before processing tokens)
+        // Check URL parameters
         const params = new URLSearchParams(window.location.search);
         const view = params.get('view');
         const token = params.get('token');
         
+        // IMPORTANT: Check for registration view FIRST before anything else
         if (view === 'register') {
-            // IMPORTANT: This is a registration link - show registration page
-            // Do NOT store the token as session (it's a registration token, not login)
             router.navigate('register');
         } else if (token) {
             // This is a login token (from GitHub callback or direct login)
