@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mobile Objex | Secure Messaging Platform</title>
-    <meta name="description" content="Secure messaging platform powered by GitHub authentication">
+    <meta name="description" content="Secure messaging platform powered by MobileObjex authentication">
     
     <style>
         :root {
@@ -927,6 +927,56 @@
             background: rgba(48, 209, 88, 0.1);
         }
 
+        /* User List Styling */
+        .user-item {
+            background: rgba(244,185,66,0.05); 
+            border: 1px solid rgba(244, 185, 66, 0.15); 
+            padding: 16px; 
+            border-radius: 12px; 
+            margin-bottom: 12px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            transition: all 0.2s ease;
+        }
+
+        .user-item:hover {
+            background: rgba(244,185,66,0.1);
+            transform: translateX(4px);
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .user-phone {
+            font-weight: 600; 
+            font-size: 15px;
+        }
+
+        .user-code {
+            color: var(--primary-yellow); 
+            font-family: 'SF Mono', Monaco, monospace; 
+            font-size: 13px; 
+            font-weight: 600;
+        }
+
+        .user-time {
+            font-size: 12px;
+            opacity: 0.5;
+            margin-top: 4px;
+        }
+
+        /* Checkbox styling */
+        .recipient-checkbox {
+            width: 22px; 
+            height: 22px; 
+            accent-color: var(--primary-yellow); 
+            cursor: pointer;
+        }
+
         /* Responsive Typography */
         @media (max-width: 640px) {
             .card-header h1 { font-size: 24px; }
@@ -948,6 +998,44 @@
                 transition-duration: 0.01ms !important;
             }
         }
+
+        /* Refresh Button */
+        .refresh-btn {
+            background: transparent;
+            border: 1px solid rgba(244, 185, 66, 0.3);
+            color: var(--primary-yellow);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            margin-left: auto;
+        }
+
+        .refresh-btn:hover {
+            background: rgba(244, 185, 66, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .refresh-btn.spinning svg {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
     </style>
 </head>
 <body>
@@ -959,13 +1047,11 @@
 
     <!-- Navigation -->
     <nav id="mainNav">
-        <div class="nav-logo" onclick="router.navigate('home')">
+        <div class="nav-logo" onclick="router.navigate('login')">
             <div class="logo-icon"><div class="shield"></div></div>
             Mobile<span>Objex</span>
         </div>
         <div class="nav-links">
-            <a onclick="router.navigate('home')" class="nav-link">Home</a>
-            <a onclick="router.navigate('login')" class="nav-link">Platform Access</a>
             <button class="theme-toggle" onclick="toggleTheme()">
                 <span class="theme-icon" id="themeIcon">🌙</span>
                 <span id="themeText">Dark</span>
@@ -992,44 +1078,17 @@
         </div>
     </nav>
 
-    <!-- PAGE 1: Home/Landing -->
-    <div id="page-home" class="page-container active">
-        <div class="center-container">
-            <div class="card" style="text-align: center; max-width: 440px;">
-                <div class="logo-large">
-                    <div class="shield shield-large"></div>
-                </div>
-                <h1 style="font-size: 36px; margin-bottom: 16px; letter-spacing: -1px;">Mobile <span style="color: var(--primary-yellow);">Objex</span></h1>
-                <p style="opacity: 0.8; margin-bottom: 32px; line-height: 1.7; font-size: 16px;">
-                    Secure messaging platform with end-to-end encryption.<br>
-                    <span style="opacity: 0.6; font-size: 14px;">No passwords stored—ever.</span>
-                </p>
-                <button onclick="router.navigate('login')" class="btn" style="font-size: 15px;">
-                    Access Secure Platform
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-left: 4px;">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-                    </svg>
-                </button>
-                <div class="security-footer">
-                    <span>🛡️</span>
-                    <span>End-to-end encryption • 30min session timeout</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- PAGE 2: Login -->
-    <div id="page-login" class="page-container">
+    <!-- PAGE 1: Login (Default) -->
+    <div id="page-login" class="page-container active">
         <div class="center-container">
             <div class="card" style="max-width: 420px;">
                 <div style="text-align: center; margin-bottom: 32px;">
-                    <div class="logo-medium" style="margin: 0 auto 16px;">
-                        <div class="shield shield-medium"></div>
+                    <div class="logo-large" style="margin: 0 auto 24px;">
+                        <div class="shield shield-large"></div>
                     </div>
-                    <h1 style="font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">Mobile <span style="color: var(--primary-yellow);">Objex</span></h1>
+                    <h1 style="font-size: 32px; margin-bottom: 8px; font-weight: 800; letter-spacing: -0.5px;">Mobile <span style="color: var(--primary-yellow);">Objex</span></h1>
+                    <p style="opacity: 0.7; font-size: 15px;">Secure Messaging Platform</p>
                 </div>
-
-                <h2 style="text-align: center; margin-bottom: 28px; font-size: 24px; font-weight: 700; letter-spacing: -0.3px;">Login</h2>
 
                 <form id="loginForm" onsubmit="handleLogin(event)">
                     <div class="form-group">
@@ -1061,13 +1120,13 @@
 
                 <div class="security-footer">
                     <span>🔒</span>
-                    <span>Secured by Mobile Objex</span>
+                    <span>Secured by Mobile Objex • End-to-end encrypted</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- PAGE 3: Registration -->
+    <!-- PAGE 2: Registration (Public Link) -->
     <div id="page-register" class="page-container">
         <div class="center-container">
             <div class="card" id="registerForm" style="max-width: 480px;">
@@ -1123,7 +1182,7 @@
 
                 <div class="security-footer">
                     <span>🛡️</span>
-                    <span>Secured by Mobile Objex • End-to-end encrypted</span>
+                    <span>Secured by Mobile Objex • Session-based isolation</span>
                 </div>
             </div>
 
@@ -1161,14 +1220,14 @@
                 <div style="font-size: 64px; margin-bottom: 24px; filter: drop-shadow(0 0 20px rgba(255, 69, 58, 0.3));">⚠️</div>
                 <h2 style="color: var(--error-red); margin-bottom: 16px; font-size: 28px;">Invalid Link</h2>
                 <p style="margin-bottom: 24px; opacity: 0.8; line-height: 1.6;">This registration link is invalid or has expired. Please request a new secure link from your Mobile Objex representative.</p>
-                <button onclick="router.navigate('home')" class="btn" style="max-width: 200px; margin: 0 auto;">
-                    Return to Home
+                <button onclick="router.navigate('login')" class="btn" style="max-width: 200px; margin: 0 auto;">
+                    Return to Login
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- PAGE 4: Dashboard -->
+    <!-- PAGE 3: Dashboard -->
     <div id="page-dashboard" class="page-container">
         <div class="container">
             <div class="page-header">
@@ -1183,12 +1242,20 @@
 
             <div id="content-users" class="tab-content active">
                 <div class="card" style="max-width: 100%;">
-                    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 32px;">
-                        <div style="width: 56px; height: 56px; background: rgba(244,185,66,0.1); border: 1px solid rgba(244, 185, 66, 0.2); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 0 20px rgba(244, 185, 66, 0.1);">👥</div>
-                        <div>
-                            <h2 style="font-size: 24px; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 4px;">Registered Users</h2>
-                            <p style="opacity: 0.6; font-size: 14px; font-weight: 500;" id="usersCount">No users registered</p>
+                    <div class="section-header">
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <div style="width: 56px; height: 56px; background: rgba(244,185,66,0.1); border: 1px solid rgba(244, 185, 66, 0.2); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 0 20px rgba(244, 185, 66, 0.1);">👥</div>
+                            <div>
+                                <h2 style="font-size: 24px; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 4px;">Registered Users</h2>
+                                <p style="opacity: 0.6; font-size: 14px; font-weight: 500;" id="usersCount">Loading users...</p>
+                            </div>
                         </div>
+                        <button class="refresh-btn" onclick="refreshRecipients()" id="refreshBtn">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            Refresh
+                        </button>
                     </div>
 
                     <h3 style="font-size: 12px; color: var(--primary-yellow); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Registration Link</h3>
@@ -1200,7 +1267,7 @@
                         </button>
                     </div>
 
-                    <div id="usersList">
+                    <div id="usersList" style="margin-top: 24px;">
                         <div style="text-align: center; padding: 60px 20px; opacity: 0.5;">
                             <div style="font-size: 56px; margin-bottom: 16px; filter: grayscale(1);">📭</div>
                             <p style="font-size: 16px; font-weight: 500;">No users registered yet</p>
@@ -1225,6 +1292,7 @@
                             <div style="text-align: center; padding: 40px 20px; opacity: 0.5;">
                                 <div style="font-size: 48px; margin-bottom: 16px;">📭</div>
                                 <p>No recipients available</p>
+                                <p style="font-size: 13px; margin-top: 8px;">Register users first to enable messaging</p>
                             </div>
                         </div>
 
@@ -1297,7 +1365,7 @@
             <div style="font-size: 56px; margin-bottom: 20px;">🚪</div>
             <h2 style="margin-bottom: 12px; font-size: 24px; font-weight: 700;">Confirm Logout</h2>
             <p style="margin-bottom: 28px; opacity: 0.8; font-size: 15px;">
-                Are you sure you want to logout? Your session will be terminated.
+                Are you sure you want to logout? Your session will be terminated and all session data cleared.
             </p>
             <div style="display: flex; gap: 12px;">
                 <button class="btn" onclick="confirmLogout()" style="flex: 1; background: var(--error-red); box-shadow: 0 4px 15px rgba(255, 69, 58, 0.3);">Logout</button>
@@ -1342,7 +1410,7 @@
         let sessionToken = localStorage.getItem('mo_session');
         let sessionExpiry = null;
         let timerInterval = null;
-        let recipients = JSON.parse(localStorage.getItem('mo_recipients') || '[]');
+        let recipients = []; // Now fetched from backend, not localStorage
         let messages = JSON.parse(localStorage.getItem('mo_messages') || '[]');
         let pendingSend = null;
 
@@ -1365,14 +1433,12 @@
                 document.getElementById('mainNav').style.display = 'none';
                 document.getElementById('dashboardNav').style.display = 'none';
                 
+                // Update hash for navigation tracking (except register for security)
                 if (page !== 'register') {
                     window.location.hash = page;
                 }
                 
                 switch(page) {
-                    case 'home':
-                        document.getElementById('mainNav').style.display = 'flex';
-                        break;
                     case 'login':
                         if (sessionToken) {
                             this.navigate('dashboard');
@@ -1392,7 +1458,7 @@
                         initDashboard();
                         break;
                     default:
-                        this.navigate('home');
+                        this.navigate('login');
                 }
             },
 
@@ -1525,6 +1591,8 @@
             sessionToken = null;
             localStorage.removeItem('mo_session');
             localStorage.removeItem('mo_user');
+            // Clear recipients from memory
+            recipients = [];
             clearInterval(timerInterval);
             window.location.href = window.location.pathname;
         }
@@ -1583,6 +1651,7 @@
                     document.getElementById('successCodeDisplay').textContent = `##${safetyCode}##`;
                     showToast('Registration successful!');
                     
+                    // Send confirmation SMS
                     await fetch(`${API_URL}/api/send-sms`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -1602,7 +1671,42 @@
             }
         }
 
-        function initDashboard() {
+        // Fetch recipients from backend
+        async function fetchRecipients() {
+            if (!sessionToken) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/api/registrations?sessionId=${sessionToken}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    recipients = data.recipients || [];
+                    updateRecipientsUI();
+                } else {
+                    throw new Error(data.error || 'Failed to fetch users');
+                }
+            } catch (error) {
+                console.error('Failed to fetch recipients:', error);
+                showToast('Failed to load users. Please refresh.', 'error');
+            }
+        }
+
+        // Refresh button handler
+        async function refreshRecipients() {
+            const btn = document.getElementById('refreshBtn');
+            btn.classList.add('spinning');
+            btn.disabled = true;
+            
+            await fetchRecipients();
+            
+            setTimeout(() => {
+                btn.classList.remove('spinning');
+                btn.disabled = false;
+                showToast('User list updated');
+            }, 500);
+        }
+
+        async function initDashboard() {
             sessionExpiry = Date.now() + (30 * 60 * 1000);
             startTimer();
             
@@ -1616,8 +1720,10 @@
             const url = `${baseUrl}?view=register&token=${sessionToken}`;
             document.getElementById('captureUrl').textContent = url;
             
-            updateRecipientsUI();
+            // Fetch recipients from backend instead of localStorage
+            await fetchRecipients();
             
+            // Setup message preview
             const msgContent = document.getElementById('messageContent');
             if (msgContent) {
                 msgContent.addEventListener('input', debounce(function() {
@@ -1669,24 +1775,53 @@
             if (recipients.length === 0) {
                 count.textContent = 'No users registered';
                 document.getElementById('sendBtn').disabled = true;
+                
+                const emptyState = `
+                    <div style="text-align: center; padding: 60px 20px; opacity: 0.5;">
+                        <div style="font-size: 56px; margin-bottom: 16px; filter: grayscale(1);">📭</div>
+                        <p style="font-size: 16px; font-weight: 500;">No users registered yet</p>
+                        <p style="font-size: 13px; margin-top: 8px; opacity: 0.7;">Share the secure link above to add users</p>
+                    </div>
+                `;
+                
+                list.innerHTML = emptyState;
+                recList.innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px; opacity: 0.5;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">📭</div>
+                        <p>No recipients available</p>
+                        <p style="font-size: 13px; margin-top: 8px;">Register users first to enable messaging</p>
+                    </div>
+                `;
                 return;
             }
             
             count.textContent = `${recipients.length} user${recipients.length !== 1 ? 's' : ''} registered`;
             document.getElementById('sendBtn').disabled = false;
             
-            const html = recipients.map((r, i) => `
-                <div style="background: rgba(244,185,66,0.05); border: 1px solid rgba(244, 185, 66, 0.15); padding: 16px; border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s ease; cursor: pointer;" onmouseover="this.style.background='rgba(244,185,66,0.1)'" onmouseout="this.style.background='rgba(244,185,66,0.05)'">
-                    <div>
-                        <div style="font-weight: 600; font-size: 15px; margin-bottom: 4px;">${r.phone}</div>
-                        <div style="color: var(--primary-yellow); font-family: 'SF Mono', Monaco, monospace; font-size: 13px; font-weight: 600;">##${r.safetyCode}##</div>
+            // Users tab list (read-only view)
+            const usersHtml = recipients.map((r, i) => `
+                <div class="user-item">
+                    <div class="user-info">
+                        <div class="user-phone">${r.phone}</div>
+                        <div class="user-code">##${r.safetyCode}##</div>
+                        <div class="user-time">Registered: ${new Date(r.registeredAt).toLocaleString()}</div>
                     </div>
-                    <input type="checkbox" checked data-index="${i}" style="width: 22px; height: 22px; accent-color: var(--primary-yellow); cursor: pointer;">
                 </div>
             `).join('');
             
-            recList.innerHTML = html;
-            list.innerHTML = `<div style="margin-top: 24px;">${html}</div>`;
+            // Campaign tab list (with checkboxes for selection)
+            const recipientsHtml = recipients.map((r, i) => `
+                <div class="user-item" style="cursor: pointer;" onclick="this.querySelector('input').click()">
+                    <div class="user-info">
+                        <div class="user-phone">${r.phone}</div>
+                        <div class="user-code">##${r.safetyCode}##</div>
+                    </div>
+                    <input type="checkbox" class="recipient-checkbox" checked data-index="${i}" onclick="event.stopPropagation()">
+                </div>
+            `).join('');
+            
+            list.innerHTML = `<div style="margin-top: 24px;">${usersHtml}</div>`;
+            recList.innerHTML = recipientsHtml;
         }
 
         function handleSend(e) {
@@ -1786,6 +1921,11 @@
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.getElementById(`tab-${tab}`).classList.add('active');
             document.getElementById(`content-${tab}`).classList.add('active');
+            
+            // If switching to campaign, refresh recipients to ensure latest data
+            if (tab === 'campaign' && sessionToken) {
+                fetchRecipients();
+            }
         }
 
         // Initialize
@@ -1796,15 +1936,18 @@
             const view = params.get('view');
             const token = params.get('token');
             
-            if (view === 'register') {
+            if (view === 'register' || (token && !sessionToken)) {
+                // Public registration link
                 router.navigate('register');
-            } else if (token) {
-                sessionToken = token;
+            } else if (token && sessionToken) {
+                // GitHub callback with token
                 localStorage.setItem('mo_session', token);
+                sessionToken = token;
                 window.history.replaceState({}, '', window.location.pathname + '#dashboard');
                 router.navigate('dashboard');
             } else {
-                const hash = window.location.hash.replace('#', '') || 'home';
+                // Default: Start with login (no home page)
+                const hash = window.location.hash.replace('#', '') || 'login';
                 router.navigate(hash);
             }
             
