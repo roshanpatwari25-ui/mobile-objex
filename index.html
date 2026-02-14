@@ -3,297 +3,1820 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mobile Objex | Secure Messaging</title>
+    <title>Mobile Objex | Secure Messaging Platform</title>
+    
     <style>
         :root {
             --primary-yellow: #F4B942;
+            --primary-yellow-hover: #E5AA33;
+            --primary-glow: rgba(244, 185, 66, 0.6);
             --bg-dark: #0a0a0f;
+            --bg-light: #f5f5f7;
             --card-dark: rgba(20, 20, 30, 0.85);
+            --card-light: rgba(255, 255, 255, 0.95);
             --text-dark: #ffffff;
+            --text-light: #1a1a1f;
+            --accent-glow: rgba(244, 185, 66, 0.4);
             --border-dark: rgba(244, 185, 66, 0.3);
+            --border-light: rgba(0, 0, 0, 0.1);
+            --input-bg-dark: rgba(10, 10, 15, 0.6);
+            --input-bg-light: rgba(245, 245, 247, 0.8);
+            --error-red: #ff3b30;
+            --success-green: #34c759;
         }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            min-height: 100vh;
             background: var(--bg-dark);
             color: var(--text-dark);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        body.light-mode { 
+            background: var(--bg-light); 
+            color: var(--text-light); 
+        }
+
+        /* Background Effects */
+        .bg-grid {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image:
+                linear-gradient(rgba(244, 185, 66, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(244, 185, 66, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
+            100% { transform: perspective(500px) rotateX(60deg) translateY(50px); }
+        }
+
+        body.light-mode .bg-grid {
+            background-image:
+                linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+        }
+
+        .particles {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 1; overflow: hidden;
+        }
+
+        .particle {
+            position: absolute; width: 4px; height: 4px;
+            background: var(--primary-yellow); border-radius: 50%;
+            opacity: 0.3; animation: float-particle 15s infinite;
+            box-shadow: 0 0 10px var(--primary-yellow);
+        }
+
+        .particle:nth-child(1) { left: 5%; top: 100%; animation-delay: 0s; animation-duration: 12s; }
+        .particle:nth-child(2) { left: 15%; top: 100%; animation-delay: 2s; animation-duration: 18s; }
+        .particle:nth-child(3) { left: 25%; top: 100%; animation-delay: 4s; animation-duration: 14s; }
+        .particle:nth-child(4) { left: 35%; top: 100%; animation-delay: 6s; animation-duration: 16s; }
+        .particle:nth-child(5) { left: 45%; top: 100%; animation-delay: 8s; animation-duration: 13s; }
+        .particle:nth-child(6) { left: 55%; top: 100%; animation-delay: 10s; animation-duration: 17s; }
+        .particle:nth-child(7) { left: 65%; top: 100%; animation-delay: 12s; animation-duration: 15s; }
+        .particle:nth-child(8) { left: 75%; top: 100%; animation-delay: 14s; animation-duration: 19s; }
+        .particle:nth-child(9) { left: 85%; top: 100%; animation-delay: 16s; animation-duration: 11s; }
+        .particle:nth-child(10) { left: 95%; top: 100%; animation-delay: 18s; animation-duration: 20s; }
+
+        @keyframes float-particle {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.3; }
+            90% { opacity: 0.3; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+
+        .orb {
+            position: fixed; border-radius: 50%;
+            filter: blur(80px); opacity: 0.3; z-index: 0;
+            animation: orb-pulse 8s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, var(--primary-yellow) 0%, transparent 70%);
+            top: -100px; right: -100px; animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, var(--primary-yellow) 0%, transparent 70%);
+            bottom: -50px; left: -50px; animation-delay: 4s;
+        }
+
+        @keyframes orb-pulse {
+            0%, 100% { transform: scale(1); opacity: 0.3; }
+            50% { transform: scale(1.2); opacity: 0.5; }
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed; top: 0; width: 100%;
+            padding: 20px 50px;
+            display: none;
+            justify-content: space-between; align-items: center;
+            z-index: 1000;
+            background: rgba(10, 10, 15, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(244, 185, 66, 0.1);
+            transition: all 0.4s ease;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+
+        body.light-mode nav { 
+            background: rgba(255, 255, 255, 0.9); 
+            border-bottom-color: rgba(0, 0, 0, 0.1); 
+        }
+
+        .nav-logo {
+            display: flex; align-items: center; gap: 12px;
+            font-size: 24px; font-weight: 800; text-decoration: none;
+            color: var(--text-dark); cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-logo:hover { transform: scale(1.05); }
+        body.light-mode .nav-logo { color: var(--text-light); }
+        .nav-logo span { color: var(--primary-yellow); text-shadow: 0 0 10px var(--primary-glow); }
+
+        .logo-icon {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, #F4B942 0%, #FFD700 100%);
+            background-size: 200% 200%;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+            animation: gradient-shift 3s ease infinite;
+            box-shadow: 0 4px 15px rgba(244, 185, 66, 0.4);
+        }
+
+        @keyframes gradient-shift { 
+            0% { background-position: 0% 50%; } 
+            50% { background-position: 100% 50%; } 
+            100% { background-position: 0% 50%; } 
+        }
+
+        .shield {
+            width: 20px; height: 24px;
+            background: #0a0a0f;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 65%, 50% 100%, 0% 65%, 0% 25%);
+            position: relative;
+        }
+        .shield::after {
+            content: '';
+            position: absolute; width: 50%; height: 100%; right: 0;
+            background: rgba(244, 185, 66, 0.3);
+            clip-path: polygon(100% 0%, 100% 100%, 0% 100%, 0% 0%);
+        }
+
+        .nav-links { display: flex; gap: 40px; align-items: center; }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        body.light-mode .nav-link { color: rgba(0, 0, 0, 0.6); }
+        .nav-link:hover { color: var(--primary-yellow); }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary-yellow);
+            transition: width 0.3s;
+        }
+        .nav-link:hover::after { width: 100%; }
+
+        .theme-toggle {
+            background: var(--card-dark);
+            border: 1px solid var(--border-dark);
+            border-radius: 50px;
+            padding: 8px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            color: var(--text-dark);
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        body.light-mode .theme-toggle { 
+            background: var(--card-light); 
+            border-color: var(--border-light); 
+            color: var(--text-light); 
+        }
+        .theme-toggle:hover { 
+            transform: scale(1.05) translateY(-2px); 
+            box-shadow: 0 0 30px var(--accent-glow); 
+            border-color: var(--primary-yellow); 
+        }
+
+        .theme-icon { font-size: 18px; transition: transform 0.3s ease; }
+        .theme-toggle:hover .theme-icon { transform: rotate(180deg); }
+
+        .session-timer {
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(244, 185, 66, 0.1);
+            border: 1px solid var(--border-dark);
+            padding: 8px 15px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary-yellow);
+            margin-right: 15px;
+        }
+        
+        body.light-mode .session-timer { 
+            background: rgba(244, 185, 66, 0.05); 
+            border-color: var(--border-light); 
+        }
+
+        .timer-display { font-variant-numeric: tabular-nums; min-width: 50px; text-align: center; }
+        .timer-low { color: #ff3b30; animation: pulse 1s infinite; }
+        
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        .user-info { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--primary-yellow); }
+
+        .logout-btn {
+            background: none;
+            border: 1px solid var(--border-dark);
+            color: var(--text-dark);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        body.light-mode .logout-btn { 
+            border-color: var(--border-light); 
+            color: var(--text-light); 
+        }
+
+        .logout-btn:hover { 
+            border-color: #ff3b30; 
+            color: #ff3b30; 
+            transform: translateY(-2px); 
+        }
+
+        .nav-right { display: flex; align-items: center; gap: 15px; }
+
+        /* Page Containers */
+        .page-container {
+            display: none;
+            position: relative;
+            z-index: 10;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .page-container.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Landing Page */
+        .hero {
             min-height: 100vh;
             display: flex;
             align-items: center;
-            justify-content: center;
-            padding: 20px;
+            padding: 120px 50px 80px;
         }
-        .card {
-            background: var(--card-dark);
-            border: 1px solid var(--border-dark);
-            border-radius: 24px;
-            padding: 40px;
-            max-width: 480px;
-            width: 100%;
-            text-align: center;
-        }
-        .logo {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #F4B942, #FFD700);
-            border-radius: 20px;
-            margin: 0 auto 30px;
-            display: flex;
+
+        .hero-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 80px;
             align-items: center;
-            justify-content: center;
-            font-size: 40px;
         }
-        h1 { font-size: 28px; margin-bottom: 10px; }
-        p { opacity: 0.7; margin-bottom: 30px; line-height: 1.5; }
-        .btn {
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(244, 185, 66, 0.1);
+            border: 1px solid var(--border-dark);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 12px;
+            color: var(--primary-yellow);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 30px;
+        }
+
+        body.light-mode .hero-badge {
+            background: rgba(244, 185, 66, 0.15);
+            border-color: var(--primary-yellow);
+        }
+
+        .hero h1 {
+            font-size: 64px;
+            line-height: 1.1;
+            font-weight: 800;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, #fff 0%, var(--primary-yellow) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        body.light-mode .hero h1 {
+            background: linear-gradient(135deg, #1a1a1f 0%, var(--primary-yellow) 100%);
+            -webkit-background-clip: text;
+        }
+
+        .hero-description {
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.6);
+            max-width: 540px;
+            margin-bottom: 40px;
+        }
+
+        body.light-mode .hero-description { color: rgba(0, 0, 0, 0.6); }
+
+        .hero-cta { display: flex; gap: 20px; }
+
+        .btn-primary {
             background: var(--primary-yellow);
             color: #000;
             padding: 16px 32px;
-            border-radius: 12px;
+            border-radius: 8px;
             text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
             font-weight: 700;
             font-size: 16px;
             border: none;
             cursor: pointer;
             transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(244, 185, 66, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
         }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(244, 185, 66, 0.3); }
-        .hidden { display: none !important; }
-        
-        /* Dashboard styles */
-        .dashboard { text-align: left; max-width: 800px; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .user-info { display: flex; align-items: center; gap: 15px; }
-        .avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--primary-yellow); }
-        .url-box { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin: 20px 0; word-break: break-all; font-family: monospace; color: var(--primary-yellow); }
-        .form-group { margin: 20px 0; }
-        input, textarea {
-            width: 100%;
-            padding: 12px;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid var(--border-dark);
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(244, 185, 66, 0.5);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-dark);
+            padding: 16px 32px;
             border-radius: 8px;
-            color: white;
-            font-family: inherit;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s;
+            cursor: pointer;
         }
-        textarea { min-height: 100px; resize: vertical; }
-        .recipients { margin: 20px 0; }
+
+        body.light-mode .btn-secondary {
+            color: var(--text-light);
+            border-color: rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary-yellow);
+            color: var(--primary-yellow);
+        }
+
+        .stats-ticker {
+            display: flex;
+            gap: 60px;
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        body.light-mode .stats-ticker { border-top-color: rgba(0,0,0,0.1); }
+
+        .stat-item h3 {
+            font-size: 48px;
+            font-weight: 800;
+            color: var(--primary-yellow);
+            text-shadow: 0 0 20px rgba(244, 185, 66, 0.3);
+        }
+
+        .stat-item p {
+            font-size: 14px;
+            color: rgba(255,255,255,0.6);
+            margin-top: 5px;
+        }
+
+        body.light-mode .stat-item p { color: rgba(0,0,0,0.6); }
+
+        .hero-visual {
+            position: relative;
+            height: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .shield-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+        }
+
+        .main-shield {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px; height: 240px;
+            background: linear-gradient(135deg, rgba(244, 185, 66, 0.2), rgba(244, 185, 66, 0.05));
+            border: 2px solid var(--primary-yellow);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 65%, 50% 100%, 0% 65%, 0% 25%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            box-shadow: 0 0 60px var(--primary-glow);
+            animation: float 6s ease-in-out infinite;
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+            50% { transform: translate(-50%, -50%) translateY(-20px); }
+        }
+
+        .orbit-ring {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            border: 1px solid rgba(244, 185, 66, 0.2);
+            border-radius: 50%;
+            animation: rotate 20s linear infinite;
+        }
+
+        .orbit-ring:nth-child(1) { width: 300px; height: 300px; }
+        .orbit-ring:nth-child(2) { width: 350px; height: 350px; animation-direction: reverse; animation-duration: 25s; }
+        .orbit-ring:nth-child(3) { width: 400px; height: 400px; animation-duration: 30s; }
+
+        @keyframes rotate {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-dark);
+            border: 1px solid var(--border-dark);
+            border-radius: 24px;
+            padding: 40px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(244, 185, 66, 0.1);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            max-width: 480px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        body.light-mode .card { 
+            background: var(--card-light); 
+            border-color: var(--border-light); 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); 
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -2px; left: -2px; right: -2px; bottom: -2px;
+            background: linear-gradient(45deg, transparent, var(--primary-yellow), transparent);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 26px;
+        }
+
+        .card:hover::before { opacity: 0.2; animation: border-glow 2s linear infinite; }
+
+        @keyframes border-glow { 0%, 100% { filter: blur(10px); } 50% { filter: blur(20px); } }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .card-header h1 { font-size: 28px; margin-bottom: 10px; font-weight: 800; }
+        .card-header h2 { font-size: 24px; margin-bottom: 8px; font-weight: 700; }
+        .card-header p { font-size: 14px; opacity: 0.7; line-height: 1.5; }
+
+        /* Forms */
+        .form-group { margin-bottom: 24px; position: relative; }
+        
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            color: var(--primary-yellow);
+        }
+
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid var(--border-dark);
+            border-radius: 12px;
+            background: var(--input-bg-dark);
+            color: var(--text-dark);
+            font-size: 16px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        body.light-mode .form-input, 
+        body.light-mode .form-textarea {
+            background: var(--input-bg-light);
+            color: var(--text-light);
+            border-color: var(--border-light);
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            border-color: var(--primary-yellow);
+            box-shadow: 0 0 0 4px var(--accent-glow), 0 0 20px var(--primary-glow);
+            transform: translateY(-2px);
+        }
+
+        .form-input.error {
+            border-color: var(--error-red);
+            box-shadow: 0 0 0 4px rgba(255, 59, 48, 0.2);
+        }
+
+        .error-message {
+            color: var(--error-red);
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .error-message.show { display: flex; }
+
+        .char-counter { text-align: right; font-size: 12px; opacity: 0.5; margin-top: 5px; }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #F4B942 0%, #E5AA33 50%, #F4B942 100%);
+            background-size: 200% 200%;
+            color: #0a0a0f;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(244, 185, 66, 0.3);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute; top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover::before { left: 100%; }
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(244, 185, 66, 0.5), 0 0 40px rgba(244, 185, 66, 0.3);
+            animation: gradient-shift 2s ease infinite;
+        }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .btn-copy {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-dark);
+            color: var(--text-dark);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        body.light-mode .btn-copy {
+            background: rgba(0, 0, 0, 0.1);
+            border-color: var(--border-light);
+            color: var(--text-light);
+        }
+
+        .btn-copy:hover { 
+            background: var(--primary-yellow); 
+            color: #0a0a0f; 
+            border-color: var(--primary-yellow); 
+        }
+
+        /* Utility */
+        .container {
+            max-width: 1200px;
+            margin: 100px auto 40px;
+            padding: 20px;
+        }
+
+        .center-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            padding-top: 100px;
+        }
+
+        .hidden { display: none !important; }
+
+        /* Tabs */
+        .tabs { 
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 30px; 
+            border-bottom: 1px solid var(--border-dark); 
+            padding-bottom: 0; 
+        }
+        
+        body.light-mode .tabs { border-bottom-color: var(--border-light); }
+
+        .tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: var(--text-dark);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.6;
+        }
+
+        body.light-mode .tab { color: var(--text-light); }
+        .tab:hover { opacity: 1; color: var(--primary-yellow); }
+        .tab.active { 
+            opacity: 1; 
+            color: var(--primary-yellow); 
+            border-bottom-color: var(--primary-yellow); 
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+
+        /* Content Grid */
+        .content-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 30px; 
+        }
+
+        @media (max-width: 968px) { 
+            .content-grid { grid-template-columns: 1fr; } 
+            nav { padding: 15px 20px; }
+            .hero-content { grid-template-columns: 1fr; text-align: center; }
+            .hero h1 { font-size: 42px; }
+            .hero-visual { display: none; }
+        }
+
+        /* Tables and Lists */
+        .url-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-dark);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 20px 0;
+            word-break: break-all;
+            font-family: monospace;
+            color: var(--primary-yellow);
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        body.light-mode .url-box { 
+            background: rgba(0, 0, 0, 0.05); 
+            border-color: var(--border-light); 
+        }
+
+        .recipients-list { max-height: 300px; overflow-y: auto; margin: 20px 0; }
+
         .recipient-item {
             background: rgba(244, 185, 66, 0.05);
             border: 1px solid var(--border-dark);
-            padding: 12px;
-            border-radius: 8px;
-            margin: 10px 0;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            animation: slideIn 0.3s ease-out;
         }
+
+        @keyframes slideIn { 
+            from { opacity: 0; transform: translateX(-20px); } 
+            to { opacity: 1; transform: translateX(0); } 
+        }
+
+        body.light-mode .recipient-item { 
+            background: rgba(244, 185, 66, 0.03); 
+            border-color: var(--border-light); 
+        }
+        
+        .recipient-item:hover { 
+            border-color: var(--primary-yellow); 
+            transform: translateX(5px); 
+        }
+
+        .recipient-info { display: flex; flex-direction: column; gap: 5px; }
+        .recipient-phone { font-weight: 600; font-size: 16px; }
+        .recipient-code { 
+            font-size: 12px; 
+            color: var(--primary-yellow); 
+            font-family: monospace; 
+            font-weight: 600;
+            background: rgba(244, 185, 66, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 4px;
+        }
+
+        .recipient-checkbox { 
+            width: 24px; 
+            height: 24px; 
+            accent-color: var(--primary-yellow); 
+            cursor: pointer; 
+        }
+
+        .message-history { max-height: 400px; overflow-y: auto; }
+        
+        .message-item {
+            background: rgba(244, 185, 66, 0.05);
+            border: 1px solid var(--border-dark);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        body.light-mode .message-item { 
+            background: rgba(244, 185, 66, 0.03); 
+            border-color: var(--border-light); 
+        }
+
+        .message-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 10px; 
+            font-size: 14px; 
+        }
+        
+        .message-status { 
+            display: flex; 
+            align-items: center; 
+            gap: 5px; 
+            color: var(--success-green); 
+            font-weight: 600; 
+        }
+        
+        .message-status.failed { color: var(--error-red); }
+
+        .message-content {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+            border-left: 3px solid var(--primary-yellow);
+            font-family: monospace;
+        }
+
+        body.light-mode .message-content { background: rgba(0, 0, 0, 0.05); }
+
+        .safety-prefix { 
+            color: var(--primary-yellow); 
+            font-weight: 700; 
+            background: rgba(244, 185, 66, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid var(--border-dark);
+        }
+
+        /* Notices */
+        .safety-notice, .spam-notice {
+            background: rgba(244, 185, 66, 0.1);
+            border: 1px solid var(--border-dark);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        body.light-mode .safety-notice, 
+        body.light-mode .spam-notice { 
+            background: rgba(244, 185, 66, 0.05); 
+            border-color: var(--border-light); 
+        }
+
+        .safety-notice .icon { color: var(--primary-yellow); font-size: 20px; }
+
+        .empty-state { text-align: center; padding: 40px 20px; opacity: 0.5; }
+        .empty-icon { font-size: 48px; margin-bottom: 15px; animation: bounce 2s infinite; }
+        
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            backdrop-filter: blur(10px);
+        }
+        
+        .modal-overlay.show { display: flex; }
+
+        .modal {
+            background: var(--card-dark);
+            border: 1px solid var(--border-dark);
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 400px;
+            text-align: center;
+            animation: modalSlide 0.3s ease;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(244, 185, 66, 0.3);
+        }
+
+        @keyframes modalSlide { 
+            from { opacity: 0; transform: scale(0.9) translateY(20px); } 
+            to { opacity: 1; transform: scale(1) translateY(0); } 
+        }
+
+        .modal-icon { font-size: 64px; margin-bottom: 20px; }
+        .modal h2 { margin-bottom: 10px; }
+        .modal p { margin-bottom: 25px; opacity: 0.7; }
+
+        /* Success State */
+        .success-state { text-align: center; padding: 20px 0; }
+        .success-icon { font-size: 64px; margin-bottom: 20px; }
+        .success-state h2 { font-size: 24px; margin-bottom: 10px; color: var(--primary-yellow); }
+        .success-state p { opacity: 0.8; line-height: 1.6; }
+
+        /* Security Footer */
+        .security-footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-dark);
+            text-align: center;
+            font-size: 12px;
+            opacity: 0.6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        body.light-mode .security-footer { border-top-color: var(--border-light); }
+
+        /* Card Icon */
+        .card-icon {
+            width: 50px; height: 50px;
+            background: linear-gradient(135deg, rgba(244, 185, 66, 0.2) 0%, rgba(244, 185, 66, 0.1) 100%);
+            border: 1px solid var(--border-dark);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover .card-icon {
+            transform: scale(1.1) rotate(5deg);
+            background: linear-gradient(135deg, rgba(244, 185, 66, 0.3) 0%, rgba(244, 185, 66, 0.2) 100%);
+        }
+
+        .page-header { margin-bottom: 40px; }
+        .page-header h1 { font-size: 42px; margin-bottom: 10px; font-weight: 800; display: flex; align-items: center; gap: 15px; }
+        .page-header p { font-size: 18px; opacity: 0.7; }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container { width: 95%; margin-top: 80px; }
+            .card { padding: 30px 20px; }
+            .hero h1 { font-size: 32px; }
+            .page-header h1 { font-size: 28px; }
+        }
+
+        .github-btn {
+            background: #24292e;
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .github-btn:hover {
+            background: #2f363d;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .github-btn svg { fill: currentColor; }
     </style>
 </head>
 <body>
-    <!-- LOGIN VIEW -->
-    <div id="view-login" class="card">
-        <div class="logo">🛡️</div>
-        <h1>Mobile Objex</h1>
-        <p>Secure messaging platform powered by GitHub authentication. No passwords stored—ever.</p>
-        <button onclick="login()" class="btn">
-            <svg height="24" width="24" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
-            Continue with GitHub
-        </button>
+    <!-- Background Effects -->
+    <div class="bg-grid"></div>
+    <div class="particles">
+        <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
+        <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
+    </div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <!-- Navigation -->
+    <nav id="mainNav">
+        <a class="nav-logo" onclick="router.navigate('home')">
+            <div class="logo-icon"><div class="shield"></div></div>
+            Mobile<span>Objex</span>
+        </a>
+        <div class="nav-links">
+            <a onclick="router.navigate('home')" class="nav-link">Home</a>
+            <a onclick="router.navigate('login')" class="nav-link">Platform Access</a>
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <span class="theme-icon" id="themeIcon">🌙</span>
+                <span id="themeText">Dark</span>
+            </button>
+        </div>
+    </nav>
+
+    <nav id="dashboardNav">
+        <a class="nav-logo">
+            <div class="logo-icon"><div class="shield"></div></div>
+            Mobile<span>Objex</span>
+        </a>
+        <div class="nav-right">
+            <div class="session-timer" id="sessionTimer">
+                <span>⏱️</span>
+                <span class="timer-display" id="timerDisplay">30:00</span>
+            </div>
+            <div class="user-info" id="userInfo">
+                <span id="usernameDisplay">User</span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <span class="theme-icon" id="themeIcon2">🌙</span>
+                <span id="themeText2">Dark</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Page 1: Landing/Home -->
+    <div id="page-home" class="page-container active">
+        <section class="hero">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <div class="hero-badge">
+                        <span>🛡️</span>
+                        <span>The First Verified Safety Mark for Mobile</span>
+                    </div>
+                    <h1>The Trust Infrastructure for Mobile Messaging</h1>
+                    <p class="hero-description">
+                        Stop scams before they reach consumers. Mobile Objex verifies legitimate messages with the MO Safety Mark, creating a fraud-free ecosystem for SMS communications.
+                    </p>
+                    <div class="hero-cta">
+                        <a onclick="router.navigate('login')" class="btn-primary">Access Secure Platform</a>
+                        <button onclick="scrollToSection('features')" class="btn-secondary">Explore Technology</button>
+                    </div>
+                    
+                    <div class="stats-ticker">
+                        <div class="stat-item">
+                            <h3>30%</h3>
+                            <p>Of US consumers<br>scammed annually</p>
+                        </div>
+                        <div class="stat-item">
+                            <h3>$7T+</h3>
+                            <p>Lost to fraud<br>worldwide</p>
+                        </div>
+                        <div class="stat-item">
+                            <h3>##</h3>
+                            <p>Safety Code<br>Protected</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="hero-visual">
+                    <div class="shield-container">
+                        <div class="orbit-ring"></div>
+                        <div class="orbit-ring"></div>
+                        <div class="orbit-ring"></div>
+                        <div class="main-shield">🛡️</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" style="padding: 100px 50px; text-align: center;">
+            <h2 style="font-size: 48px; margin-bottom: 50px;">How It Works</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto;">
+                <div class="card" style="text-align: left;">
+                    <div class="card-icon">1️⃣</div>
+                    <h3 style="margin: 20px 0 10px; color: var(--primary-yellow);">Register</h3>
+                    <p>Recipients register with their phone number and choose a unique safety code (formatted as ##code##)</p>
+                </div>
+                <div class="card" style="text-align: left;">
+                    <div class="card-icon">2️⃣</div>
+                    <h3 style="margin: 20px 0 10px; color: var(--primary-yellow);">Verify</h3>
+                    <p>All messages are automatically prefixed with the recipient's ##safetyCode## for instant verification</p>
+                </div>
+                <div class="card" style="text-align: left;">
+                    <div class="card-icon">3️⃣</div>
+                    <h3 style="margin: 20px 0 10px; color: var(--primary-yellow);">Secure</h3>
+                    <p>End-to-end encrypted delivery with session timeouts and audit logging for maximum security</p>
+                </div>
+            </div>
+        </section>
+
+        <footer style="padding: 60px 50px 30px; text-align: center; opacity: 0.6; border-top: 1px solid var(--border-dark);">
+            <h3 style="margin-bottom: 20px;">Mobile<span style="color: var(--primary-yellow);">Objex</span></h3>
+            <p>&copy; 2026 Mobile Objex. All rights reserved. | Secure Messaging Platform</p>
+        </footer>
     </div>
 
-    <!-- DASHBOARD VIEW -->
-    <div id="view-dashboard" class="card dashboard hidden">
-        <div class="header">
-            <h2>📤 Message Center</h2>
-            <div class="user-info">
-                <img id="userAvatar" class="avatar" src="" alt="">
-                <span id="userName"></span>
-                <button onclick="logout()" style="background: transparent; border: 1px solid var(--border-dark); color: white; padding: 8px 16px; border-radius: 8px; cursor: pointer;">Logout</button>
-            </div>
-        </div>
+    <!-- Page 2: Login -->
+    <div id="page-login" class="page-container">
+        <div class="center-container">
+            <div class="card">
+                <div class="card-header">
+                    <div class="logo-icon" style="width: 80px; height: 80px; margin: 0 auto 20px; border-radius: 20px;">
+                        <div class="shield" style="width: 40px; height: 48px;"></div>
+                    </div>
+                    <h1>Secure Access</h1>
+                    <p>Authenticate securely using GitHub OAuth. No passwords stored—ever.</p>
+                </div>
 
-        <div id="capture-section">
-            <h3>Registration Link</h3>
-            <p>Share this link with recipients to register their phone numbers:</p>
-            <div class="url-box" id="captureUrl">Loading...</div>
-            <button onclick="copyUrl()" class="btn" style="padding: 10px 20px; font-size: 14px;">Copy Link</button>
-        </div>
+                <button onclick="loginWithGitHub()" class="github-btn">
+                    <svg height="24" width="24" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+                    Continue with GitHub
+                </button>
 
-        <hr style="border-color: var(--border-dark); margin: 30px 0;">
-
-        <div id="compose-section">
-            <h3>Send Message</h3>
-            <div class="recipients" id="recipientsList">
-                <p style="opacity: 0.5;">No recipients registered yet.</p>
+                <div class="security-footer">
+                    <span>🛡️</span>
+                    <span>End-to-end encryption • 30min session timeout</span>
+                </div>
             </div>
-            
-            <div class="form-group">
-                <textarea id="messageText" placeholder="Enter your message here..."></textarea>
-            </div>
-            
-            <button onclick="sendMessages()" class="btn" id="sendBtn" disabled>Send Secure Message</button>
         </div>
     </div>
 
-    <!-- CAPTURE/REGISTER VIEW (for recipients) -->
-    <div id="view-capture" class="card hidden">
-        <div class="logo">🛡️</div>
-        <h1>Secure Registration</h1>
-        <p>Enter your mobile number and safety code to receive verified messages.</p>
-        
-        <form onsubmit="register(event)" style="margin-top: 30px;">
-            <div class="form-group">
-                <input type="tel" id="regPhone" placeholder="Phone Number (e.g., +1234567890)" required>
+    <!-- Page 3: Registration (Capture) -->
+    <div id="page-register" class="page-container">
+        <div class="center-container">
+            <div class="card" id="regFormCard">
+                <div class="card-header">
+                    <div class="logo-icon" style="width: 60px; height: 60px; margin: 0 auto 15px;">
+                        <div class="shield" style="width: 30px; height: 36px;"></div>
+                    </div>
+                    <h1>Secure Registration</h1>
+                    <p>Enter your details to receive verified messages with ##safetyCode## protection.</p>
+                </div>
+
+                <div class="safety-notice" style="font-size: 12px; margin-bottom: 20px;">
+                    <span class="icon">ℹ️</span>
+                    <span>Your safety code will be formatted as ##code## in all messages for security.</span>
+                </div>
+
+                <form id="captureForm" onsubmit="handleRegister(event)">
+                    <div class="form-group">
+                        <label class="form-label">Mobile Number *</label>
+                        <input type="tel" class="form-input" id="regPhone" placeholder="+1 (555) 000-0000" required>
+                        <div class="error-message" id="phoneError">Invalid phone number format</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Safety Code *</label>
+                        <input type="text" class="form-input" id="regSafetyCode" placeholder="4-6 characters (e.g., 4521)" required minlength="4" maxlength="6">
+                        <div style="font-size: 11px; opacity: 0.6; margin-top: 5px;">Will be formatted as ##4521## in messages</div>
+                    </div>
+
+                    <button type="submit" class="btn" id="regSubmitBtn">
+                        Complete Registration
+                    </button>
+                </form>
+
+                <div class="security-footer">
+                    <span>🔒</span>
+                    <span>Secured by Mobile Objex</span>
+                </div>
             </div>
-            <div class="form-group">
-                <input type="text" id="regSafetyCode" placeholder="Safety Code (4-6 chars)" required minlength="4" maxlength="6">
+
+            <div class="card hidden" id="regSuccessCard">
+                <div class="success-state">
+                    <div class="success-icon">✅</div>
+                    <h2>Registration Complete</h2>
+                    <p>You will receive a confirmation SMS shortly with your safety code verification.</p>
+                    
+                    <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin: 20px 0; text-align: left; font-family: monospace; font-size: 13px;">
+                        <div style="color: var(--primary-yellow); font-weight: 600; margin-bottom: 8px; font-size: 11px;">PREVIEW:</div>
+                        <span style="color: var(--primary-yellow); font-weight: 700;" id="successCodePreview">##CODE##</span> Thank you for registering with Mobile Objex.
+                    </div>
+
+                    <div class="spam-notice" style="text-align: left;">
+                        <span style="font-size: 20px;">📧</span>
+                        <div>
+                            <strong style="color: var(--primary-yellow); font-size: 12px;">Didn't receive it?</strong><br>
+                            <span style="font-size: 12px;">Check your spam folder or wait 60 seconds.</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <button type="submit" class="btn">Complete Registration</button>
-        </form>
+
+            <div class="card hidden" id="invalidSessionCard" style="text-align: center; border-color: var(--error-red);">
+                <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
+                <h2 style="color: var(--error-red); margin-bottom: 10px;">Invalid Session</h2>
+                <p>This registration link is invalid or has expired.</p>
+                <button onclick="router.navigate('home')" class="btn" style="margin-top: 20px;">Return to Home</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page 4: Dashboard -->
+    <div id="page-dashboard" class="page-container">
+        <div class="container">
+            <div class="page-header">
+                <h1>📤 Message Center</h1>
+                <p>Secure Messaging Dashboard - Manage recipients and send verified messages</p>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('users')" id="tab-users">Users</button>
+                <button class="tab" onclick="switchTab('campaign')" id="tab-campaign">Campaign</button>
+            </div>
+
+            <div id="content-users" class="tab-content active">
+                <div class="card" style="max-width: 100%;">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid var(--border-dark);">
+                        <div class="card-icon">👥</div>
+                        <div>
+                            <h2 style="font-size: 24px; margin-bottom: 5px;">Registered Users</h2>
+                            <p style="opacity: 0.6; font-size: 14px;" id="usersCount">No users registered</p>
+                        </div>
+                    </div>
+
+                    <h3 style="font-size: 14px; color: var(--primary-yellow); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">Registration Link</h3>
+                    <div class="url-box">
+                        <span id="captureUrl">Loading...</span>
+                        <button class="btn-copy" onclick="copyCaptureUrl()">Copy</button>
+                    </div>
+
+                    <div id="recipientsTable">
+                        <div class="empty-state">
+                            <div class="empty-icon">📭</div>
+                            <p>No users registered yet</p>
+                            <p style="font-size: 12px; margin-top: 10px;">Share the link above to add users</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="content-campaign" class="tab-content">
+                <div class="content-grid">
+                    <div class="card" style="max-width: 100%;">
+                        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 30px;">
+                            <div class="card-icon">📱</div>
+                            <div>
+                                <h2 style="font-size: 24px; margin-bottom: 5px;">Compose Message</h2>
+                                <p style="opacity: 0.6; font-size: 14px;">Messages will be prefixed with ##SafetyCode##</p>
+                            </div>
+                        </div>
+
+                        <div class="recipients-list" id="recipientsList">
+                            <div class="empty-state">
+                                <div class="empty-icon">📭</div>
+                                <p>No recipients available</p>
+                            </div>
+                        </div>
+
+                        <div class="safety-notice">
+                            <span class="icon">🛡️</span>
+                            <span><strong>Security:</strong> All messages include ##safetyCode## prefix for verification.</span>
+                        </div>
+
+                        <form id="sendForm" onsubmit="handleSend(event)">
+                            <div class="form-group">
+                                <label class="form-label">Message Content *</label>
+                                <textarea class="form-textarea" id="messageContent" placeholder="Enter your secure message here..." maxlength="1600" required></textarea>
+                                <div class="char-counter"><span id="charCount">0</span> / 1600</div>
+                            </div>
+
+                            <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 3px solid var(--primary-yellow);">
+                                <div style="font-size: 12px; color: var(--primary-yellow); margin-bottom: 5px; font-weight: 600;">PREVIEW:</div>
+                                <div id="messagePreview" style="font-family: monospace; font-size: 13px; word-break: break-word;">
+                                    <span style="color: var(--primary-yellow); font-weight: 700;">##[SafetyCode]##</span> Your message will appear here...
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn" id="sendBtn" disabled>
+                                <span>🚀</span> Send Secure Message
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="card" style="max-width: 100%;">
+                        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 30px;">
+                            <div class="card-icon">📨</div>
+                            <div>
+                                <h2 style="font-size: 24px; margin-bottom: 5px;">Message History</h2>
+                                <p style="opacity: 0.6; font-size: 14px;" id="historyCount">No messages sent</p>
+                            </div>
+                        </div>
+
+                        <div class="message-history" id="messageHistory">
+                            <div class="empty-state">
+                                <div class="empty-icon">📤</div>
+                                <p>No messages sent yet</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Confirmation Modal -->
+    <div class="modal-overlay" id="securityModal">
+        <div class="modal">
+            <div class="modal-icon" style="color: var(--primary-yellow);">🔒</div>
+            <h2>Confirm Sending</h2>
+            <p>You are about to send messages with safety codes to <span id="confirmCount" style="color: var(--primary-yellow); font-weight: 700;"></span> recipient(s).</p>
+            <div style="background: rgba(244,185,66,0.1); padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; text-align: left;">
+                <strong>Message Preview:</strong><br>
+                <span id="confirmPreview" style="font-family: monospace; color: var(--primary-yellow);"></span>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn" onclick="confirmSend()" style="flex: 1;">Confirm Send</button>
+                <button class="btn" onclick="closeSecurityModal()" style="flex: 1; background: transparent; border: 1px solid var(--border-dark); color: var(--text-dark);">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Session Expired Modal -->
+    <div class="modal-overlay" id="expiredModal">
+        <div class="modal">
+            <div class="modal-icon">⏰</div>
+            <h2 style="color: #ff3b30;">Session Expired</h2>
+            <p>Your session has expired for security reasons. Please login again.</p>
+            <button class="btn" onclick="logout()">Return to Login</button>
+        </div>
     </div>
 
     <script>
-        // CONFIGURATION - UPDATE THIS WITH YOUR WORKER URL
+        // CONFIGURATION - Update this with your Cloudflare Worker URL
         const API_URL = 'https://mobile-objex-api.roshanpatwari25.workers.dev';
         
-        let sessionToken = null;
-        let userData = null;
+        // State
+        let sessionToken = localStorage.getItem('mo_session');
+        let sessionExpiry = null;
+        let timerInterval = null;
         let recipients = [];
+        let pendingSend = null;
+        let currentUser = null;
 
-        // Check session on load
-        window.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const token = urlParams.get('token');
-            const view = urlParams.get('view');
+        // Router
+        const router = {
+            currentPage: 'home',
+            navigate: function(page, params = {}) {
+                // Update URL
+                const url = new URL(window.location.href);
+                url.hash = page;
+                if (params.token) url.searchParams.set('token', params.token);
+                window.history.pushState({}, '', url);
+                
+                this.showPage(page, params);
+            },
             
-            if (view === 'capture') {
-                document.getElementById('view-login').classList.add('hidden');
-                document.getElementById('view-capture').classList.remove('hidden');
-            } else if (token) {
-                sessionToken = token;
-                localStorage.setItem('mo_session', token);
-                loadDashboard();
-            } else {
-                const saved = localStorage.getItem('mo_session');
-                if (saved) {
-                    sessionToken = saved;
-                    loadDashboard();
+            showPage: function(page, params = {}) {
+                // Hide all pages and navs
+                document.querySelectorAll('.page-container').forEach(el => el.classList.remove('active'));
+                document.getElementById('mainNav').style.display = 'none';
+                document.getElementById('dashboardNav').style.display = 'none';
+                
+                this.currentPage = page;
+                
+                switch(page) {
+                    case 'home':
+                        document.getElementById('page-home').classList.add('active');
+                        document.getElementById('mainNav').style.display = 'flex';
+                        break;
+                        
+                    case 'login':
+                        if (sessionToken) {
+                            this.showPage('dashboard');
+                            return;
+                        }
+                        document.getElementById('page-login').classList.add('active');
+                        document.getElementById('mainNav').style.display = 'flex';
+                        break;
+                        
+                    case 'register':
+                        this.showRegisterPage(params);
+                        break;
+                        
+                    case 'dashboard':
+                        if (!sessionToken) {
+                            this.showPage('login');
+                            return;
+                        }
+                        document.getElementById('page-dashboard').classList.add('active');
+                        document.getElementById('dashboardNav').style.display = 'flex';
+                        initDashboard();
+                        break;
+                        
+                    default:
+                        this.showPage('home');
                 }
+            },
+            
+            showRegisterPage: function(params) {
+                const urlParams = new URLSearchParams(window.location.search);
+                const token = urlParams.get('token') || params.token;
+                
+                document.getElementById('page-register').classList.add('active');
+                
+                if (!token) {
+                    document.getElementById('regFormCard').classList.add('hidden');
+                    document.getElementById('invalidSessionCard').classList.remove('hidden');
+                    return;
+                }
+                
+                // Store session ID for registration
+                window.registrationSessionId = token;
+                document.getElementById('regFormCard').classList.remove('hidden');
+                document.getElementById('regSuccessCard').classList.add('hidden');
+                document.getElementById('invalidSessionCard').classList.add('hidden');
             }
-        });
+        };
 
-        function login() {
+        // Utility Functions
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatSafetyCode(code) {
+            code = String(code).replace(/#/g, '');
+            return `##${code}##`;
+        }
+
+        function normalizePhone(phone) {
+            return phone.replace(/\D/g, '');
+        }
+
+        // Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            const isLight = body.classList.toggle('light-mode');
+            
+            document.querySelectorAll('.theme-icon').forEach(icon => icon.textContent = isLight ? '☀️' : '🌙');
+            document.querySelectorAll('#themeText, #themeText2').forEach(text => text.textContent = isLight ? 'Light' : 'Dark');
+            
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        }
+
+        function loadTheme() {
+            if (localStorage.getItem('theme') === 'light') {
+                document.body.classList.add('light-mode');
+                document.querySelectorAll('.theme-icon').forEach(icon => icon.textContent = '☀️');
+                document.querySelectorAll('#themeText, #themeText2').forEach(text => text.textContent = 'Light');
+            }
+        }
+
+        // Authentication
+        function loginWithGitHub() {
             window.location.href = `${API_URL}/auth/login`;
         }
 
         function logout() {
+            sessionToken = null;
             localStorage.removeItem('mo_session');
-            window.location.href = window.location.pathname;
+            clearInterval(timerInterval);
+            window.location.href = window.location.pathname; // Clear query params
         }
 
-        async function loadDashboard() {
-            document.getElementById('view-login').classList.add('hidden');
-            document.getElementById('view-dashboard').classList.remove('hidden');
+        function checkAuth() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
             
-            // Set user info (in real app, fetch from API)
-            document.getElementById('userName').textContent = 'User';
-            
-            // Generate capture URL
-            const captureUrl = `${window.location.origin}${window.location.pathname}?view=capture&token=${sessionToken}`;
-            document.getElementById('captureUrl').textContent = captureUrl;
-            
-            // Load recipients (mock for now)
-            updateRecipients();
-        }
-
-        function copyUrl() {
-            const url = document.getElementById('captureUrl').textContent;
-            navigator.clipboard.writeText(url);
-            alert('Link copied!');
-        }
-
-        function updateRecipients() {
-            const list = document.getElementById('recipientsList');
-            if (recipients.length === 0) {
-                list.innerHTML = '<p style="opacity: 0.5;">No recipients registered yet. Share the link above!</p>';
-                document.getElementById('sendBtn').disabled = true;
+            if (token) {
+                sessionToken = token;
+                localStorage.setItem('mo_session', token);
+                // Clean URL
+                window.history.replaceState({}, '', window.location.pathname + '#dashboard');
+                router.showPage('dashboard');
+            } else if (sessionToken) {
+                router.showPage('dashboard');
             } else {
-                list.innerHTML = recipients.map(r => `
-                    <div class="recipient-item">
-                        <span>${r.phone}</span>
-                        <span style="color: var(--primary-yellow);">##${r.safetyCode}##</span>
-                    </div>
-                `).join('');
-                document.getElementById('sendBtn').disabled = false;
+                const hash = window.location.hash.replace('#', '') || 'home';
+                router.showPage(hash);
             }
         }
 
-        async function sendMessages() {
-            const message = document.getElementById('messageText').value;
+        // Registration
+        async function handleRegister(e) {
+            e.preventDefault();
+            
+            const phone = document.getElementById('regPhone').value.trim();
+            const safetyCode = document.getElementById('regSafetyCode').value.trim();
+            const btn = document.getElementById('regSubmitBtn');
+            
+            // Validation
+            const phoneDigits = normalizePhone(phone);
+            if (phoneDigits.length < 10) {
+                document.getElementById('regPhone').classList.add('error');
+                document.getElementById('phoneError').classList.add('show');
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.textContent = 'Registering...';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        phone: phone,
+                        safetyCode: safetyCode,
+                        sessionId: window.registrationSessionId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Show success
+                    document.getElementById('regFormCard').classList.add('hidden');
+                    document.getElementById('regSuccessCard').classList.remove('hidden');
+                    document.getElementById('successCodePreview').textContent = formatSafetyCode(safetyCode);
+                    
+                    // Send confirmation SMS
+                    await fetch(`${API_URL}/api/send-sms`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            phone: phone,
+                            safetyCode: safetyCode,
+                            message: 'Thank you for registering with Mobile Objex. Your secure messaging is now active.'
+                        })
+                    });
+                } else {
+                    throw new Error(data.error || 'Registration failed');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+                btn.disabled = false;
+                btn.textContent = 'Complete Registration';
+            }
+        }
+
+        // Dashboard Functions
+        async function initDashboard() {
+            if (!sessionToken) return;
+            
+            // Set session expiry (30 minutes from now)
+            sessionExpiry = Date.now() + (30 * 60 * 1000);
+            startTimer();
+            
+            // Generate capture URL
+            const captureUrl = `${window.location.origin}${window.location.pathname}?view=register&token=${sessionToken}`;
+            document.getElementById('captureUrl').textContent = captureUrl;
+            
+            // Load recipients (in a real app, you'd fetch from your worker)
+            // For now, we'll simulate with local state or you can add a GET endpoint to your worker
+            updateRecipientsUI();
+            
+            // Setup message preview
+            document.getElementById('messageContent').addEventListener('input', function() {
+                const text = this.value;
+                document.getElementById('charCount').textContent = text.length;
+                document.getElementById('messagePreview').innerHTML = 
+                    `<span style="color: var(--primary-yellow); font-weight: 700;">##[SafetyCode]##</span> ${escapeHtml(text || 'Your message will appear here...')}`;
+            });
+        }
+
+        function startTimer() {
+            updateTimer();
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            if (!sessionExpiry) return;
+            
+            const remaining = sessionExpiry - Date.now();
+            
+            if (remaining <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById('timerDisplay').textContent = "00:00";
+                document.getElementById('expiredModal').classList.add('show');
+                return;
+            }
+            
+            const minutes = Math.floor(remaining / 60000);
+            const seconds = Math.floor((remaining % 60000) / 1000);
+            document.getElementById('timerDisplay').textContent = 
+                `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                
+            if (minutes < 2) document.getElementById('timerDisplay').classList.add('timer-low');
+        }
+
+        function copyCaptureUrl() {
+            const url = document.getElementById('captureUrl').textContent;
+            navigator.clipboard.writeText(url).then(() => {
+                const btn = document.querySelector('.btn-copy');
+                btn.textContent = '✓ Copied!';
+                setTimeout(() => btn.textContent = 'Copy', 2000);
+            });
+        }
+
+        function updateRecipientsUI() {
+            const list = document.getElementById('recipientsList');
+            const table = document.getElementById('recipientsTable');
+            const count = document.getElementById('usersCount');
+            
+            if (recipients.length === 0) {
+                count.textContent = 'No users registered';
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <p>No recipients available</p>
+                    </div>`;
+                table.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <p>No users registered yet</p>
+                        <p style="font-size: 12px; margin-top: 10px;">Share the link above to add users</p>
+                    </div>`;
+                document.getElementById('sendBtn').disabled = true;
+            } else {
+                count.textContent = `${recipients.length} users registered`;
+                document.getElementById('sendBtn').disabled = false;
+                
+                // Recipients list with checkboxes
+                list.innerHTML = recipients.map((r, i) => `
+                    <div class="recipient-item">
+                        <div class="recipient-info">
+                            <div class="recipient-phone">${escapeHtml(r.phone)}</div>
+                            <div class="recipient-code">${escapeHtml(formatSafetyCode(r.safetyCode))}</div>
+                        </div>
+                        <input type="checkbox" class="recipient-checkbox" checked data-index="${i}">
+                    </div>
+                `).join('');
+                
+                // Table view
+                table.innerHTML = `
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid var(--border-dark);">
+                                    <th style="text-align: left; padding: 12px; color: var(--primary-yellow); font-size: 12px; text-transform: uppercase;">Phone</th>
+                                    <th style="text-align: left; padding: 12px; color: var(--primary-yellow); font-size: 12px; text-transform: uppercase;">Safety Code</th>
+                                    <th style="text-align: left; padding: 12px; color: var(--primary-yellow); font-size: 12px; text-transform: uppercase;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${recipients.map(r => `
+                                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                        <td style="padding: 12px; font-family: monospace;">${escapeHtml(r.phone)}</td>
+                                        <td style="padding: 12px; color: var(--primary-yellow); font-family: monospace; font-weight: 700;">${escapeHtml(formatSafetyCode(r.safetyCode))}</td>
+                                        <td style="padding: 12px;"><span style="background: rgba(52,199,89,0.2); color: #34c759; padding: 4px 12px; border-radius: 50px; font-size: 12px; font-weight: 600; text-transform: uppercase;">Active</span></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+        }
+
+        // Sending Messages
+        function handleSend(e) {
+            e.preventDefault();
+            
+            const message = document.getElementById('messageContent').value.trim();
             if (!message) return alert('Please enter a message');
             
-            // Send to each recipient
-            for (const recipient of recipients) {
+            const checkboxes = document.querySelectorAll('.recipient-checkbox:checked');
+            if (checkboxes.length === 0) return alert('Please select at least one recipient');
+            
+            const selectedRecipients = Array.from(checkboxes).map(cb => recipients[cb.dataset.index]);
+            
+            pendingSend = { recipients: selectedRecipients, message };
+            
+            // Show security modal
+            document.getElementById('confirmCount').textContent = selectedRecipients.length;
+            document.getElementById('confirmPreview').textContent = `##[SafetyCode]## ${message}`;
+            document.getElementById('securityModal').classList.add('show');
+        }
+
+        function closeSecurityModal() {
+            document.getElementById('securityModal').classList.remove('show');
+            pendingSend = null;
+        }
+
+        async function confirmSend() {
+            if (!pendingSend) return;
+            
+            document.getElementById('securityModal').classList.remove('show');
+            
+            const btn = document.getElementById('sendBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span>⏳</span> Sending...';
+            
+            let successCount = 0;
+            let failCount = 0;
+            
+            for (const recipient of pendingSend.recipients) {
                 try {
-                    const res = await fetch(`${API_URL}/api/send-sms`, {
+                    const response = await fetch(`${API_URL}/api/send-sms`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             phone: recipient.phone,
                             safetyCode: recipient.safetyCode,
-                            message: message
+                            message: pendingSend.message
                         })
                     });
                     
-                    const data = await res.json();
+                    const data = await response.json();
+                    
                     if (data.success) {
-                        alert(`Sent to ${recipient.phone}`);
+                        successCount++;
+                        addToHistory(recipient, pendingSend.message, 'sent');
                     } else {
-                        alert(`Failed to send to ${recipient.phone}: ${data.error}`);
+                        failCount++;
+                        addToHistory(recipient, pendingSend.message, 'failed');
                     }
-                } catch (err) {
-                    console.error(err);
+                } catch (error) {
+                    console.error('Send error:', error);
+                    failCount++;
+                    addToHistory(recipient, pendingSend.message, 'failed');
                 }
+                
+                // Rate limiting
+                await new Promise(r => setTimeout(r, 1100));
             }
+            
+            btn.disabled = false;
+            btn.innerHTML = '<span>🚀</span> Send Secure Message';
+            
+            alert(`✅ Sent to ${successCount} recipient(s)${failCount > 0 ? `\n❌ Failed: ${failCount}` : ''}`);
+            
+            // Clear form
+            document.getElementById('messageContent').value = '';
+            document.getElementById('charCount').textContent = '0';
+            document.getElementById('messagePreview').innerHTML = '<span style="color: var(--primary-yellow); font-weight: 700;">##[SafetyCode]##</span> Your message will appear here...';
+            
+            pendingSend = null;
         }
 
-        async function register(e) {
-            e.preventDefault();
-            const phone = document.getElementById('regPhone').value;
-            const safetyCode = document.getElementById('regSafetyCode').value;
+        function addToHistory(recipient, message, status) {
+            const history = document.getElementById('messageHistory');
+            const count = document.getElementById('historyCount');
             
-            const urlParams = new URLSearchParams(window.location.search);
-            const token = urlParams.get('token');
-            
-            try {
-                const res = await fetch(`${API_URL}/api/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        sessionId: token,
-                        phone: phone,
-                        safetyCode: safetyCode
-                    })
-                });
-                
-                const data = await res.json();
-                if (data.success) {
-                    alert('Registration successful! Check your SMS for confirmation.');
-                    document.getElementById('view-capture').innerHTML = `
-                        <div class="logo">✅</div>
-                        <h1>Success!</h1>
-                        <p>You will receive a confirmation SMS shortly with your safety code ##${safetyCode}##.</p>
-                    `;
-                } else {
-                    alert('Registration failed: ' + data.error);
-                }
-            } catch (err) {
-                alert('Error: ' + err.message);
+            // Remove empty state if present
+            if (history.querySelector('.empty-state')) {
+                history.innerHTML = '';
             }
+            
+            const div = document.createElement('div');
+            div.className = 'message-item';
+            div.innerHTML = `
+                <div class="message-header">
+                    <span><strong>${escapeHtml(recipient.phone)}</strong></span>
+                    <span class="message-status ${status}">
+                        <span>${status === 'sent' ? '✓' : '✕'}</span>
+                        <span>${status.toUpperCase()}</span>
+                    </span>
+                </div>
+                <div class="message-content">
+                    <span class="safety-prefix">${escapeHtml(formatSafetyCode(recipient.safetyCode))}</span> ${escapeHtml(message)}
+                </div>
+                <div style="margin-top: 10px; font-size: 12px; opacity: 0.5;">
+                    ${new Date().toLocaleTimeString()}
+                </div>
+            `;
+            
+            history.insertBefore(div, history.firstChild);
+            
+            const currentCount = history.querySelectorAll('.message-item').length;
+            count.textContent = `${currentCount} messages sent`;
         }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById('content-' + tabName).classList.add('active');
+        }
+
+        function scrollToSection(id) {
+            document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Phone formatting
+        document.getElementById('regPhone')?.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, "");
+            if (value.length > 0) {
+                if (value.length <= 3) value = "(" + value;
+                else if (value.length <= 6) value = "(" + value.slice(0, 3) + ") " + value.slice(3);
+                else value = "(" + value.slice(0, 3) + ") " + value.slice(3, 6) + "-" + value.slice(6, 10);
+            }
+            e.target.value = value;
+        });
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            loadTheme();
+            checkAuth();
+        });
+
+        // Handle hash changes
+        window.addEventListener('hashchange', () => {
+            const hash = window.location.hash.replace('#', '');
+            if (hash) router.showPage(hash);
+        });
     </script>
 </body>
 </html>
