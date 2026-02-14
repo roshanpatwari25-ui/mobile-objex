@@ -984,498 +984,490 @@
             <button class="btn" onclick="logout()">Return to Login</button>
         </div>
     </div>
+<script>
+    // CONFIGURATION - UPDATE THIS
+    const API_URL = 'https://mobile-objex-api.roshanpatwari25.workers.dev';
+    
+    // State
+    let sessionToken = localStorage.getItem('mo_session');
+    let sessionExpiry = null;
+    let timerInterval = null;
+    let recipients = JSON.parse(localStorage.getItem('mo_recipients') || '[]');
+    let messages = JSON.parse(localStorage.getItem('mo_messages') || '[]');
+    let pendingSend = null;
+    let currentUser = null;
 
-    <script>
-        // CONFIGURATION - UPDATE THIS
-        const API_URL = 'https://mobile-objex-api.roshanpatwari25.workers.dev';
-        
-        // State
-        let sessionToken = localStorage.getItem('mo_session');
-        let sessionExpiry = null;
-        let timerInterval = null;
-        let recipients = JSON.parse(localStorage.getItem('mo_recipients') || '[]');
-        let messages = JSON.parse(localStorage.getItem('mo_messages') || '[]');
-        let pendingSend = null;
-        let currentUser = null;
+    // Router
+    const router = {
+        navigate: function(page) {
+            // Hide all pages and navs
+            document.querySelectorAll('.page-container').forEach(el => el.classList.remove('active'));
+            document.getElementById('mainNav').style.display = 'none';
+            document.getElementById('dashboardNav').style.display = 'none';
+            
+            // Update URL hash (preserve query params for register page)
+            if (page !== 'register') {
+                window.location.hash = page;
+            }
+            
+            switch(page) {
+                case 'home':
+                    document.getElementById('page-home').classList.add('active');
+                    document.getElementById('mainNav').style.display = 'flex';
+                    break;
+                case 'login':
+                    if (sessionToken) {
+                        this.navigate('dashboard');
+                        return;
+                    }
+                    document.getElementById('page-login').classList.add('active');
+                    document.getElementById('mainNav').style.display = 'flex';
+                    break;
+                case 'register':
+                    this.showRegister();
+                    break;
+                case 'dashboard':
+                    if (!sessionToken) {
+                        this.navigate('login');
+                        return;
+                    }
+                    document.getElementById('page-dashboard').classList.add('active');
+                    document.getElementById('dashboardNav').style.display = 'flex';
+                    initDashboard();
+                    break;
+                default:
+                    this.navigate('home');
+            }
+        },
 
-        // Router
-        const router = {
-            navigate: function(page) {
-                // Hide all pages and navs
-                document.querySelectorAll('.page-container').forEach(el => el.classList.remove('active'));
-                document.getElementById('mainNav').style.display = 'none';
-                document.getElementById('dashboardNav').style.display = 'none';
-                
-                // Update URL hash (preserve query params for register page)
-                if (page !== 'register') {
-                    window.location.hash = page;
-                }
-                
-                switch(page) {
-                    case 'home':
-                        document.getElementById('page-home').classList.add('active');
-                        document.getElementById('mainNav').style.display = 'flex';
-                        break;
-                    case 'login':
-                        if (sessionToken) {
-                            this.navigate('dashboard');
-                            return;
-                        }
-                        document.getElementById('page-login').classList.add('active');
-                        document.getElementById('mainNav').style.display = 'flex';
-                        break;
-                    case 'register':
-                        this.showRegister();
-                        break;
-                    case 'dashboard':
-                        if (!sessionToken) {
-                            this.navigate('login');
-                            return;
-                        }
-                        document.getElementById('page-dashboard').classList.add('active');
-                        document.getElementById('dashboardNav').style.display = 'flex';
-                        initDashboard();
-                        break;
-                    default:
-                        this.navigate('home');
-                }
-            },
-
-            showRegister: function() {
-                // Get token from URL params (preserve existing query params)
-                const params = new URLSearchParams(window.location.search);
-                const token = params.get('token') || params.get('s');
-                
-                // Show register page
-                document.getElementById('page-register').classList.add('active');
-                
-                if (!token || !token.startsWith('sess_')) {
-                    document.getElementById('registerForm').classList.add('hidden');
-                    document.getElementById('registerSuccess').classList.add('hidden');
-                    document.getElementById('invalidSession').classList.remove('hidden');
-                    return;
-                }
-                
-                // Store for form submission
-                window.registrationSessionId = token;
-                
-                // Reset form
-                document.getElementById('registerForm').classList.remove('hidden');
+        showRegister: function() {
+            // Get token from URL params (preserve existing query params)
+            const params = new URLSearchParams(window.location.search);
+            const token = params.get('token') || params.get('s');
+            
+            // Show register page without changing URL (keep query params)
+            document.getElementById('page-register').classList.add('active');
+            document.getElementById('mainNav').style.display = 'flex'; // Show public nav
+            
+            if (!token || !token.startsWith('sess_')) {
+                document.getElementById('registerForm').classList.add('hidden');
                 document.getElementById('registerSuccess').classList.add('hidden');
-                document.getElementById('invalidSession').classList.add('hidden');
-                document.getElementById('captureForm').reset();
-                document.querySelectorAll('.error-message').forEach(e => e.classList.remove('show'));
-                document.querySelectorAll('.form-input').forEach(e => e.classList.remove('error'));
+                document.getElementById('invalidSession').classList.remove('hidden');
+                return;
             }
-        };
-
-        // Phone formatting
-        function setupPhoneFormatting() {
-            const phoneInputs = document.querySelectorAll('input[type="tel"]');
-            phoneInputs.forEach(input => {
-                input.addEventListener('input', function(e) {
-                    let value = e.target.value.replace(/\D/g, "");
-                    if (value.length > 0) {
-                        if (value.length <= 3) value = "(" + value;
-                        else if (value.length <= 6) value = "(" + value.slice(0, 3) + ") " + value.slice(3);
-                        else value = "(" + value.slice(0, 3) + ") " + value.slice(3, 6) + "-" + value.slice(6, 10);
-                    }
-                    e.target.value = value;
-                });
-            });
-        }
-
-        // Theme toggle
-        function toggleTheme() {
-            const isLight = document.body.classList.toggle('light-mode');
-            const icon = isLight ? '☀️' : '🌙';
-            const text = isLight ? 'Light' : 'Dark';
-            document.querySelectorAll('.theme-icon').forEach(el => el.textContent = icon);
-            document.querySelectorAll('#themeText, #themeText2').forEach(el => el.textContent = text);
-            localStorage.setItem('theme', isLight ? 'light' : 'dark');
-        }
-
-        // Auth functions
-        function loginWithGitHub() {
-            window.location.href = `${API_URL}/auth/login`;
-        }
-
-        async function handleLogin(e) {
-            e.preventDefault();
             
-            const username = document.getElementById('loginUsername').value.trim();
-            const password = document.getElementById('loginPassword').value;
-            const btn = document.getElementById('loginBtn');
+            // Store for form submission
+            window.registrationSessionId = token;
             
-            btn.disabled = true;
-            btn.innerHTML = '<span>⏳</span> Logging in...';
-            
-            try {
-                // Call the login API
-                const response = await fetch(`${API_URL}/api/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success && data.token) {
-                    sessionToken = data.token;
-                    localStorage.setItem('mo_session', data.token);
-                    if (data.user) {
-                        localStorage.setItem('mo_user', JSON.stringify(data.user));
-                    }
-                    router.navigate('dashboard');
-                } else {
-                    throw new Error(data.error || 'Invalid credentials');
-                }
-            } catch (error) {
-                alert('Login failed: ' + error.message);
-                btn.disabled = false;
-                btn.innerHTML = `<svg class="arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg> Login`;
-            }
-        }
-
-        // Logout confirmation
-        function showLogoutConfirm() {
-            document.getElementById('logoutModal').classList.add('show');
-        }
-
-        function closeLogoutModal() {
-            document.getElementById('logoutModal').classList.remove('show');
-        }
-
-        function confirmLogout() {
-            closeLogoutModal();
-            performLogout();
-        }
-
-        function performLogout() {
-            sessionToken = null;
-            localStorage.removeItem('mo_session');
-            localStorage.removeItem('mo_user');
-            clearInterval(timerInterval);
-            window.location.href = window.location.pathname;
-        }
-
-        // Keep old function name for compatibility
-        function logout() {
-            performLogout();
-        }
-
-        // Registration
-        async function handleRegister(e) {
-            e.preventDefault();
-            
-            const phone = document.getElementById('regPhone').value.trim();
-            const phoneConfirm = document.getElementById('regPhoneConfirm').value.trim();
-            const safetyCode = document.getElementById('regSafetyCode').value.trim();
-            const safetyCodeConfirm = document.getElementById('regSafetyCodeConfirm').value.trim();
-            
-            // Reset errors
+            // Reset form
+            document.getElementById('registerForm').classList.remove('hidden');
+            document.getElementById('registerSuccess').classList.add('hidden');
+            document.getElementById('invalidSession').classList.add('hidden');
+            document.getElementById('captureForm').reset();
             document.querySelectorAll('.error-message').forEach(e => e.classList.remove('show'));
             document.querySelectorAll('.form-input').forEach(e => e.classList.remove('error'));
+        }
+    };
+
+    // Phone formatting
+    function setupPhoneFormatting() {
+        const phoneInputs = document.querySelectorAll('input[type="tel"]');
+        phoneInputs.forEach(input => {
+            input.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, "");
+                if (value.length > 0) {
+                    if (value.length <= 3) value = "(" + value;
+                    else if (value.length <= 6) value = "(" + value.slice(0, 3) + ") " + value.slice(3);
+                    else value = "(" + value.slice(0, 3) + ") " + value.slice(3, 6) + "-" + value.slice(6, 10);
+                }
+                e.target.value = value;
+            });
+        });
+    }
+
+    // Theme toggle
+    function toggleTheme() {
+        const isLight = document.body.classList.toggle('light-mode');
+        const icon = isLight ? '☀️' : '🌙';
+        const text = isLight ? 'Light' : 'Dark';
+        document.querySelectorAll('.theme-icon').forEach(el => el.textContent = icon);
+        document.querySelectorAll('#themeText, #themeText2').forEach(el => el.textContent = text);
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    }
+
+    // Auth functions
+    function loginWithGitHub() {
+        window.location.href = `${API_URL}/auth/login`;
+    }
+
+    async function handleLogin(e) {
+        e.preventDefault();
+        
+        const username = document.getElementById('loginUsername').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        const btn = document.getElementById('loginBtn');
+        
+        btn.disabled = true;
+        btn.innerHTML = '<span>⏳</span> Logging in...';
+        
+        try {
+            const response = await fetch(`${API_URL}/api/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
             
-            let hasError = false;
+            const data = await response.json();
             
-            // Validate phone match
-            if (phone !== phoneConfirm) {
-                document.getElementById('regPhone').classList.add('error');
-                document.getElementById('regPhoneConfirm').classList.add('error');
-                document.getElementById('phoneMatchError').classList.add('show');
-                hasError = true;
+            if (data.success && data.token) {
+                sessionToken = data.token;
+                localStorage.setItem('mo_session', data.token);
+                if (data.user) {
+                    localStorage.setItem('mo_user', JSON.stringify(data.user));
+                }
+                router.navigate('dashboard');
+            } else {
+                throw new Error(data.error || 'Invalid credentials');
             }
+        } catch (error) {
+            alert('Login failed: ' + error.message);
+            btn.disabled = false;
+            btn.innerHTML = `<svg class="arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg> Login`;
+        }
+    }
+
+    // Logout confirmation
+    function showLogoutConfirm() {
+        document.getElementById('logoutModal').classList.add('show');
+    }
+
+    function closeLogoutModal() {
+        document.getElementById('logoutModal').classList.remove('show');
+    }
+
+    function confirmLogout() {
+        closeLogoutModal();
+        performLogout();
+    }
+
+    function performLogout() {
+        sessionToken = null;
+        localStorage.removeItem('mo_session');
+        localStorage.removeItem('mo_user');
+        clearInterval(timerInterval);
+        // Clear URL completely and go to home
+        window.location.href = window.location.pathname;
+    }
+
+    function logout() {
+        performLogout();
+    }
+
+    // Registration
+    async function handleRegister(e) {
+        e.preventDefault();
+        
+        const phone = document.getElementById('regPhone').value.trim();
+        const phoneConfirm = document.getElementById('regPhoneConfirm').value.trim();
+        const safetyCode = document.getElementById('regSafetyCode').value.trim();
+        const safetyCodeConfirm = document.getElementById('regSafetyCodeConfirm').value.trim();
+        
+        // Reset errors
+        document.querySelectorAll('.error-message').forEach(e => e.classList.remove('show'));
+        document.querySelectorAll('.form-input').forEach(e => e.classList.remove('error'));
+        
+        let hasError = false;
+        
+        // Validate phone match
+        if (phone !== phoneConfirm) {
+            document.getElementById('regPhone').classList.add('error');
+            document.getElementById('regPhoneConfirm').classList.add('error');
+            document.getElementById('phoneMatchError').classList.add('show');
+            hasError = true;
+        }
+        
+        // Validate safety code match
+        if (safetyCode !== safetyCodeConfirm) {
+            document.getElementById('regSafetyCode').classList.add('error');
+            document.getElementById('regSafetyCodeConfirm').classList.add('error');
+            document.getElementById('codeMatchError').classList.add('show');
+            hasError = true;
+        }
+        
+        if (hasError) return;
+        
+        const btn = document.getElementById('regSubmitBtn');
+        btn.disabled = true;
+        btn.textContent = 'Registering...';
+        
+        try {
+            const response = await fetch(`${API_URL}/api/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    phone: phone,
+                    safetyCode: safetyCode,
+                    sessionId: window.registrationSessionId
+                })
+            });
             
-            // Validate safety code match
-            if (safetyCode !== safetyCodeConfirm) {
-                document.getElementById('regSafetyCode').classList.add('error');
-                document.getElementById('regSafetyCodeConfirm').classList.add('error');
-                document.getElementById('codeMatchError').classList.add('show');
-                hasError = true;
-            }
+            const data = await response.json();
             
-            if (hasError) return;
-            
-            const btn = document.getElementById('regSubmitBtn');
-            btn.disabled = true;
-            btn.textContent = 'Registering...';
-            
-            try {
-                const response = await fetch(`${API_URL}/api/register`, {
+            if (data.success) {
+                // Show success
+                document.getElementById('registerForm').classList.add('hidden');
+                document.getElementById('registerSuccess').classList.remove('hidden');
+                document.getElementById('successCodeDisplay').textContent = `##${safetyCode}##`;
+                
+                // Send confirmation SMS
+                await fetch(`${API_URL}/api/send-sms`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         phone: phone,
                         safetyCode: safetyCode,
-                        sessionId: window.registrationSessionId
+                        message: 'Thank you for registering with Mobile Objex. Your secure messaging is now active.'
+                    })
+                });
+            } else {
+                throw new Error(data.error || 'Registration failed');
+            }
+        } catch (error) {
+            alert('Error: ' + error.message);
+            btn.disabled = false;
+            btn.textContent = 'Complete Registration';
+        }
+    }
+
+    // Dashboard functions
+    function initDashboard() {
+        // Set timer
+        sessionExpiry = Date.now() + (30 * 60 * 1000);
+        startTimer();
+        
+        // Update username display if available
+        const userData = localStorage.getItem('mo_user');
+        if (userData) {
+            const user = JSON.parse(userData);
+            document.getElementById('usernameDisplay').textContent = user.name || user.login || user.username || 'User';
+        }
+        
+        // Generate capture URL - ensure it uses the current origin and path
+        const baseUrl = window.location.origin + window.location.pathname;
+        const url = `${baseUrl}?view=register&token=${sessionToken}`;
+        document.getElementById('captureUrl').textContent = url;
+        
+        updateRecipientsUI();
+        
+        // Setup message preview
+        document.getElementById('messageContent').addEventListener('input', function() {
+            const text = this.value;
+            document.getElementById('charCount').textContent = text.length;
+            document.getElementById('messagePreview').innerHTML = 
+                `<span class="safety-highlight">##[SafetyCode]##</span> ${text || 'Your message will appear here...'}`;
+        });
+    }
+
+    function startTimer() {
+        updateTimer();
+        timerInterval = setInterval(updateTimer, 1000);
+    }
+
+    function updateTimer() {
+        const remaining = sessionExpiry - Date.now();
+        if (remaining <= 0) {
+            clearInterval(timerInterval);
+            document.getElementById('expiredModal').classList.add('show');
+            return;
+        }
+        const mins = Math.floor(remaining / 60000);
+        const secs = Math.floor((remaining % 60000) / 1000);
+        const display = document.getElementById('timerDisplay');
+        display.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        
+        if (mins < 5) {
+            display.classList.add('timer-low');
+        } else {
+            display.classList.remove('timer-low');
+        }
+    }
+
+    function copyUrl() {
+        const url = document.getElementById('captureUrl').textContent;
+        navigator.clipboard.writeText(url).then(() => {
+            const btn = document.querySelector('.btn-copy');
+            btn.textContent = 'Copied!';
+            setTimeout(() => btn.textContent = 'Copy Link', 2000);
+        });
+    }
+
+    function updateRecipientsUI() {
+        const list = document.getElementById('usersList');
+        const recList = document.getElementById('recipientsList');
+        const count = document.getElementById('usersCount');
+        
+        if (recipients.length === 0) {
+            count.textContent = 'No users registered';
+            document.getElementById('sendBtn').disabled = true;
+            return;
+        }
+        
+        count.textContent = `${recipients.length} users registered`;
+        document.getElementById('sendBtn').disabled = false;
+        
+        const html = recipients.map((r, i) => `
+            <div style="background: rgba(244,185,66,0.05); border: 1px solid var(--border-dark); padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-weight: 600;">${r.phone}</div>
+                    <div style="color: var(--primary-yellow); font-family: monospace; font-size: 12px; margin-top: 4px;">##${r.safetyCode}##</div>
+                </div>
+                <input type="checkbox" checked data-index="${i}" style="width: 20px; height: 20px; accent-color: var(--primary-yellow);">
+            </div>
+        `).join('');
+        
+        recList.innerHTML = html;
+        list.innerHTML = `<div style="margin-top: 20px;">${html}</div>`;
+    }
+
+    function handleSend(e) {
+        e.preventDefault();
+        const message = document.getElementById('messageContent').value.trim();
+        if (!message) return alert('Please enter a message');
+        
+        const checkboxes = document.querySelectorAll('#recipientsList input[type="checkbox"]:checked');
+        if (checkboxes.length === 0) return alert('Please select at least one recipient');
+        
+        pendingSend = {
+            recipients: Array.from(checkboxes).map(cb => recipients[cb.dataset.index]),
+            message: message
+        };
+        
+        document.getElementById('confirmCount').textContent = pendingSend.recipients.length;
+        document.getElementById('confirmMessage').textContent = message;
+        document.getElementById('securityModal').classList.add('show');
+    }
+
+    function closeSecurityModal() {
+        document.getElementById('securityModal').classList.remove('show');
+        pendingSend = null;
+    }
+
+    async function confirmSend() {
+        if (!pendingSend) return;
+        document.getElementById('securityModal').classList.remove('show');
+        
+        const btn = document.getElementById('sendBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span>⏳</span> Sending...';
+        
+        for (const recipient of pendingSend.recipients) {
+            try {
+                await fetch(`${API_URL}/api/send-sms`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        phone: recipient.phone,
+                        safetyCode: recipient.safetyCode,
+                        message: pendingSend.message
                     })
                 });
                 
-                const data = await response.json();
-                
-                if (data.success) {
-                    // Show success
-                    document.getElementById('registerForm').classList.add('hidden');
-                    document.getElementById('registerSuccess').classList.remove('hidden');
-                    document.getElementById('successCodeDisplay').textContent = `##${safetyCode}##`;
-                    
-                    // Send confirmation SMS
-                    await fetch(`${API_URL}/api/send-sms`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            phone: phone,
-                            safetyCode: safetyCode,
-                            message: 'Thank you for registering with Mobile Objex. Your secure messaging is now active.'
-                        })
-                    });
-                } else {
-                    throw new Error(data.error || 'Registration failed');
-                }
-            } catch (error) {
-                alert('Error: ' + error.message);
-                btn.disabled = false;
-                btn.textContent = 'Complete Registration';
+                // Add to history
+                messages.unshift({
+                    recipient: recipient.phone,
+                    code: recipient.safetyCode,
+                    message: pendingSend.message,
+                    time: new Date().toLocaleTimeString()
+                });
+            } catch (e) {
+                console.error(e);
             }
+            await new Promise(r => setTimeout(r, 1100));
         }
+        
+        localStorage.setItem('mo_messages', JSON.stringify(messages));
+        updateHistory();
+        
+        btn.disabled = false;
+        btn.innerHTML = '<span>🚀</span> Send Secure Message';
+        document.getElementById('messageContent').value = '';
+        document.getElementById('charCount').textContent = '0';
+        document.getElementById('messagePreview').innerHTML = '<span class="safety-highlight">##[SafetyCode]##</span> Your message will appear here...';
+        
+        alert(`Sent to ${pendingSend.recipients.length} recipient(s)`);
+        pendingSend = null;
+    }
 
-        // Dashboard functions
-        function initDashboard() {
-            // Set timer
-            sessionExpiry = Date.now() + (30 * 60 * 1000);
-            startTimer();
-            
-            // Update username display if available
-            const userData = localStorage.getItem('mo_user');
-            if (userData) {
-                const user = JSON.parse(userData);
-                document.getElementById('usernameDisplay').textContent = user.name || user.login || user.username || 'User';
-            }
-            
-            // Generate capture URL - ensure it uses the current origin and path
-            const baseUrl = window.location.origin + window.location.pathname;
-            const url = `${baseUrl}?view=register&token=${sessionToken}`;
-            document.getElementById('captureUrl').textContent = url;
-            
-            updateRecipientsUI();
-            
-            // Setup message preview
-            document.getElementById('messageContent').addEventListener('input', function() {
-                const text = this.value;
-                document.getElementById('charCount').textContent = text.length;
-                document.getElementById('messagePreview').innerHTML = 
-                    `<span class="safety-highlight">##[SafetyCode]##</span> ${text || 'Your message will appear here...'}`;
-            });
-        }
-
-        function startTimer() {
-            updateTimer();
-            timerInterval = setInterval(updateTimer, 1000);
-        }
-
-        function updateTimer() {
-            const remaining = sessionExpiry - Date.now();
-            if (remaining <= 0) {
-                clearInterval(timerInterval);
-                document.getElementById('expiredModal').classList.add('show');
-                return;
-            }
-            const mins = Math.floor(remaining / 60000);
-            const secs = Math.floor((remaining % 60000) / 1000);
-            const display = document.getElementById('timerDisplay');
-            display.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-            
-            if (mins < 5) {
-                display.classList.add('timer-low');
-            } else {
-                display.classList.remove('timer-low');
-            }
-        }
-
-        function copyUrl() {
-            const url = document.getElementById('captureUrl').textContent;
-            navigator.clipboard.writeText(url).then(() => {
-                const btn = document.querySelector('.btn-copy');
-                btn.textContent = 'Copied!';
-                setTimeout(() => btn.textContent = 'Copy Link', 2000);
-            });
-        }
-
-        function updateRecipientsUI() {
-            const list = document.getElementById('usersList');
-            const recList = document.getElementById('recipientsList');
-            const count = document.getElementById('usersCount');
-            
-            if (recipients.length === 0) {
-                count.textContent = 'No users registered';
-                document.getElementById('sendBtn').disabled = true;
-                return;
-            }
-            
-            count.textContent = `${recipients.length} users registered`;
-            document.getElementById('sendBtn').disabled = false;
-            
-            const html = recipients.map((r, i) => `
-                <div style="background: rgba(244,185,66,0.05); border: 1px solid var(--border-dark); padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <div style="font-weight: 600;">${r.phone}</div>
-                        <div style="color: var(--primary-yellow); font-family: monospace; font-size: 12px; margin-top: 4px;">##${r.safetyCode}##</div>
-                    </div>
-                    <input type="checkbox" checked data-index="${i}" style="width: 20px; height: 20px; accent-color: var(--primary-yellow);">
+    function updateHistory() {
+        const history = document.getElementById('messageHistory');
+        const count = document.getElementById('historyCount');
+        
+        if (messages.length === 0) return;
+        
+        count.textContent = `${messages.length} messages sent`;
+        history.innerHTML = messages.map(m => `
+            <div style="background: rgba(244,185,66,0.05); border: 1px solid var(--border-dark); padding: 15px; border-radius: 12px; margin-bottom: 10px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;">
+                    <strong>${m.recipient}</strong>
+                    <span style="color: #34c759;">✓ Sent</span>
                 </div>
-            `).join('');
-            
-            recList.innerHTML = html;
-            list.innerHTML = `<div style="margin-top: 20px;">${html}</div>`;
-        }
-
-        function handleSend(e) {
-            e.preventDefault();
-            const message = document.getElementById('messageContent').value.trim();
-            if (!message) return alert('Please enter a message');
-            
-            const checkboxes = document.querySelectorAll('#recipientsList input[type="checkbox"]:checked');
-            if (checkboxes.length === 0) return alert('Please select at least one recipient');
-            
-            pendingSend = {
-                recipients: Array.from(checkboxes).map(cb => recipients[cb.dataset.index]),
-                message: message
-            };
-            
-            document.getElementById('confirmCount').textContent = pendingSend.recipients.length;
-            document.getElementById('confirmMessage').textContent = message;
-            document.getElementById('securityModal').classList.add('show');
-        }
-
-        function closeSecurityModal() {
-            document.getElementById('securityModal').classList.remove('show');
-            pendingSend = null;
-        }
-
-        async function confirmSend() {
-            if (!pendingSend) return;
-            document.getElementById('securityModal').classList.remove('show');
-            
-            const btn = document.getElementById('sendBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<span>⏳</span> Sending...';
-            
-            for (const recipient of pendingSend.recipients) {
-                try {
-                    await fetch(`${API_URL}/api/send-sms`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            phone: recipient.phone,
-                            safetyCode: recipient.safetyCode,
-                            message: pendingSend.message
-                        })
-                    });
-                    
-                    // Add to history
-                    messages.unshift({
-                        recipient: recipient.phone,
-                        code: recipient.safetyCode,
-                        message: pendingSend.message,
-                        time: new Date().toLocaleTimeString()
-                    });
-                } catch (e) {
-                    console.error(e);
-                }
-                await new Promise(r => setTimeout(r, 1100));
-            }
-            
-            localStorage.setItem('mo_messages', JSON.stringify(messages));
-            updateHistory();
-            
-            btn.disabled = false;
-            btn.innerHTML = '<span>🚀</span> Send Secure Message';
-            document.getElementById('messageContent').value = '';
-            document.getElementById('charCount').textContent = '0';
-            document.getElementById('messagePreview').innerHTML = '<span class="safety-highlight">##[SafetyCode]##</span> Your message will appear here...';
-            
-            alert(`Sent to ${pendingSend.recipients.length} recipient(s)`);
-            pendingSend = null;
-        }
-
-        function updateHistory() {
-            const history = document.getElementById('messageHistory');
-            const count = document.getElementById('historyCount');
-            
-            if (messages.length === 0) return;
-            
-            count.textContent = `${messages.length} messages sent`;
-            history.innerHTML = messages.map(m => `
-                <div style="background: rgba(244,185,66,0.05); border: 1px solid var(--border-dark); padding: 15px; border-radius: 12px; margin-bottom: 10px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;">
-                        <strong>${m.recipient}</strong>
-                        <span style="color: #34c759;">✓ Sent</span>
-                    </div>
-                    <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; font-family: monospace; font-size: 13px; border-left: 3px solid var(--primary-yellow);">
-                        <span class="safety-highlight">##${m.code}##</span> ${m.message}
-                    </div>
-                    <div style="margin-top: 8px; font-size: 12px; opacity: 0.5;">${m.time}</div>
+                <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; font-family: monospace; font-size: 13px; border-left: 3px solid var(--primary-yellow);">
+                    <span class="safety-highlight">##${m.code}##</span> ${m.message}
                 </div>
-            `).join('');
+                <div style="margin-top: 8px; font-size: 12px; opacity: 0.5;">${m.time}</div>
+            </div>
+        `).join('');
+    }
+
+    function switchTab(tab) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.getElementById(`tab-${tab}`).classList.add('active');
+        document.getElementById(`content-${tab}`).classList.add('active');
+    }
+
+    // Initialize - FIXED LOGIC HERE
+    window.addEventListener('DOMContentLoaded', () => {
+        setupPhoneFormatting();
+        
+        // Check for view parameter FIRST (before processing tokens)
+        const params = new URLSearchParams(window.location.search);
+        const view = params.get('view');
+        const token = params.get('token');
+        
+        if (view === 'register') {
+            // IMPORTANT: This is a registration link - show registration page
+            // Do NOT store the token as session (it's a registration token, not login)
+            router.navigate('register');
+        } else if (token) {
+            // This is a login token (from GitHub callback or direct login)
+            sessionToken = token;
+            localStorage.setItem('mo_session', token);
+            // Clean URL
+            window.history.replaceState({}, '', window.location.pathname + '#dashboard');
+            router.navigate('dashboard');
+        } else {
+            // Normal routing based on hash
+            const hash = window.location.hash.replace('#', '') || 'home';
+            router.navigate(hash);
         }
+        
+        // Load theme
+        if (localStorage.getItem('theme') === 'light') toggleTheme();
+        
+        // Update history if any
+        updateHistory();
+    });
 
-        function switchTab(tab) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.getElementById(`tab-${tab}`).classList.add('active');
-            document.getElementById(`content-${tab}`).classList.add('active');
-        }
-
-        // Initialize
-        window.addEventListener('DOMContentLoaded', () => {
-            setupPhoneFormatting();
-            
-            // Check for token in URL (from GitHub callback or login)
-            const params = new URLSearchParams(window.location.search);
-            const token = params.get('token');
-            const view = params.get('view');
-            
-            if (token) {
-                // Check if it's a login token or GitHub callback
-                if (token.startsWith('mo_sess_') || token.startsWith('sess_')) {
-                    sessionToken = token;
-                    localStorage.setItem('mo_session', token);
-                    // Clean URL
-                    window.history.replaceState({}, '', window.location.pathname + '#dashboard');
-                    router.navigate('dashboard');
-                } else {
-                    // GitHub callback with token
-                    sessionToken = token;
-                    localStorage.setItem('mo_session', token);
-                    window.history.replaceState({}, '', window.location.pathname + '#dashboard');
-                    router.navigate('dashboard');
-                }
-            } else if (view === 'register') {
-                // Important: Don't change hash for register, keep query params
-                router.navigate('register');
-            } else {
-                // Check hash
-                const hash = window.location.hash.replace('#', '') || 'home';
-                router.navigate(hash);
-            }
-            
-            // Load theme
-            if (localStorage.getItem('theme') === 'light') toggleTheme();
-            
-            // Update history if any
-            updateHistory();
-        });
-
-        // Handle hash changes (but preserve query params for register page)
-        window.addEventListener('hashchange', () => {
-            const hash = window.location.hash.replace('#', '');
-            // If we have query params for register, don't process hash change
-            const params = new URLSearchParams(window.location.search);
-            if (params.get('view') === 'register') return;
-            
-            if (hash && !hash.includes('?')) router.navigate(hash);
-        });
-    </script>
+    // Handle hash changes (but preserve query params for register page)
+    window.addEventListener('hashchange', () => {
+        const params = new URLSearchParams(window.location.search);
+        // If we have query params for register, don't process hash change
+        if (params.get('view') === 'register') return;
+        
+        const hash = window.location.hash.replace('#', '');
+        if (hash && !hash.includes('?')) router.navigate(hash);
+    });
+</script>
 </body>
 </html>
