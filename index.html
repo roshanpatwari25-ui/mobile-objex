@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Objex | Secure Messaging</title>
+    <style>
+        :root {
+            --primary-yellow: #F4B942;
+            --bg-dark: #0a0a0f;
+            --card-dark: rgba(20, 20, 30, 0.85);
+            --text-dark: #ffffff;
+            --border-dark: rgba(244, 185, 66, 0.3);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .card {
+            background: var(--card-dark);
+            border: 1px solid var(--border-dark);
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+        }
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #F4B942, #FFD700);
+            border-radius: 20px;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+        h1 { font-size: 28px; margin-bottom: 10px; }
+        p { opacity: 0.7; margin-bottom: 30px; line-height: 1.5; }
+        .btn {
+            background: var(--primary-yellow);
+            color: #000;
+            padding: 16px 32px;
+            border-radius: 12px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(244, 185, 66, 0.3); }
+        .hidden { display: none !important; }
+        
+        /* Dashboard styles */
+        .dashboard { text-align: left; max-width: 800px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--primary-yellow); }
+        .url-box { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin: 20px 0; word-break: break-all; font-family: monospace; color: var(--primary-yellow); }
+        .form-group { margin: 20px 0; }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border-dark);
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
+        }
+        textarea { min-height: 100px; resize: vertical; }
+        .recipients { margin: 20px 0; }
+        .recipient-item {
+            background: rgba(244, 185, 66, 0.05);
+            border: 1px solid var(--border-dark);
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+    <!-- LOGIN VIEW -->
+    <div id="view-login" class="card">
+        <div class="logo">🛡️</div>
+        <h1>Mobile Objex</h1>
+        <p>Secure messaging platform powered by GitHub authentication. No passwords stored—ever.</p>
+        <button onclick="login()" class="btn">
+            <svg height="24" width="24" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+            Continue with GitHub
+        </button>
+    </div>
+
+    <!-- DASHBOARD VIEW -->
+    <div id="view-dashboard" class="card dashboard hidden">
+        <div class="header">
+            <h2>📤 Message Center</h2>
+            <div class="user-info">
+                <img id="userAvatar" class="avatar" src="" alt="">
+                <span id="userName"></span>
+                <button onclick="logout()" style="background: transparent; border: 1px solid var(--border-dark); color: white; padding: 8px 16px; border-radius: 8px; cursor: pointer;">Logout</button>
+            </div>
+        </div>
+
+        <div id="capture-section">
+            <h3>Registration Link</h3>
+            <p>Share this link with recipients to register their phone numbers:</p>
+            <div class="url-box" id="captureUrl">Loading...</div>
+            <button onclick="copyUrl()" class="btn" style="padding: 10px 20px; font-size: 14px;">Copy Link</button>
+        </div>
+
+        <hr style="border-color: var(--border-dark); margin: 30px 0;">
+
+        <div id="compose-section">
+            <h3>Send Message</h3>
+            <div class="recipients" id="recipientsList">
+                <p style="opacity: 0.5;">No recipients registered yet.</p>
+            </div>
+            
+            <div class="form-group">
+                <textarea id="messageText" placeholder="Enter your message here..."></textarea>
+            </div>
+            
+            <button onclick="sendMessages()" class="btn" id="sendBtn" disabled>Send Secure Message</button>
+        </div>
+    </div>
+
+    <!-- CAPTURE/REGISTER VIEW (for recipients) -->
+    <div id="view-capture" class="card hidden">
+        <div class="logo">🛡️</div>
+        <h1>Secure Registration</h1>
+        <p>Enter your mobile number and safety code to receive verified messages.</p>
+        
+        <form onsubmit="register(event)" style="margin-top: 30px;">
+            <div class="form-group">
+                <input type="tel" id="regPhone" placeholder="Phone Number (e.g., +1234567890)" required>
+            </div>
+            <div class="form-group">
+                <input type="text" id="regSafetyCode" placeholder="Safety Code (4-6 chars)" required minlength="4" maxlength="6">
+            </div>
+            <button type="submit" class="btn">Complete Registration</button>
+        </form>
+    </div>
+
+    <script>
+        // CONFIGURATION - UPDATE THIS WITH YOUR WORKER URL
+        const API_URL = 'https://mobile-objex-api.roshanpatwari25.workers.dev';
+        
+        let sessionToken = null;
+        let userData = null;
+        let recipients = [];
+
+        // Check session on load
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            const view = urlParams.get('view');
+            
+            if (view === 'capture') {
+                document.getElementById('view-login').classList.add('hidden');
+                document.getElementById('view-capture').classList.remove('hidden');
+            } else if (token) {
+                sessionToken = token;
+                localStorage.setItem('mo_session', token);
+                loadDashboard();
+            } else {
+                const saved = localStorage.getItem('mo_session');
+                if (saved) {
+                    sessionToken = saved;
+                    loadDashboard();
+                }
+            }
+        });
+
+        function login() {
+            window.location.href = `${API_URL}/auth/login`;
+        }
+
+        function logout() {
+            localStorage.removeItem('mo_session');
+            window.location.href = window.location.pathname;
+        }
+
+        async function loadDashboard() {
+            document.getElementById('view-login').classList.add('hidden');
+            document.getElementById('view-dashboard').classList.remove('hidden');
+            
+            // Set user info (in real app, fetch from API)
+            document.getElementById('userName').textContent = 'User';
+            
+            // Generate capture URL
+            const captureUrl = `${window.location.origin}${window.location.pathname}?view=capture&token=${sessionToken}`;
+            document.getElementById('captureUrl').textContent = captureUrl;
+            
+            // Load recipients (mock for now)
+            updateRecipients();
+        }
+
+        function copyUrl() {
+            const url = document.getElementById('captureUrl').textContent;
+            navigator.clipboard.writeText(url);
+            alert('Link copied!');
+        }
+
+        function updateRecipients() {
+            const list = document.getElementById('recipientsList');
+            if (recipients.length === 0) {
+                list.innerHTML = '<p style="opacity: 0.5;">No recipients registered yet. Share the link above!</p>';
+                document.getElementById('sendBtn').disabled = true;
+            } else {
+                list.innerHTML = recipients.map(r => `
+                    <div class="recipient-item">
+                        <span>${r.phone}</span>
+                        <span style="color: var(--primary-yellow);">##${r.safetyCode}##</span>
+                    </div>
+                `).join('');
+                document.getElementById('sendBtn').disabled = false;
+            }
+        }
+
+        async function sendMessages() {
+            const message = document.getElementById('messageText').value;
+            if (!message) return alert('Please enter a message');
+            
+            // Send to each recipient
+            for (const recipient of recipients) {
+                try {
+                    const res = await fetch(`${API_URL}/api/send-sms`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            phone: recipient.phone,
+                            safetyCode: recipient.safetyCode,
+                            message: message
+                        })
+                    });
+                    
+                    const data = await res.json();
+                    if (data.success) {
+                        alert(`Sent to ${recipient.phone}`);
+                    } else {
+                        alert(`Failed to send to ${recipient.phone}: ${data.error}`);
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+        }
+
+        async function register(e) {
+            e.preventDefault();
+            const phone = document.getElementById('regPhone').value;
+            const safetyCode = document.getElementById('regSafetyCode').value;
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            
+            try {
+                const res = await fetch(`${API_URL}/api/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sessionId: token,
+                        phone: phone,
+                        safetyCode: safetyCode
+                    })
+                });
+                
+                const data = await res.json();
+                if (data.success) {
+                    alert('Registration successful! Check your SMS for confirmation.');
+                    document.getElementById('view-capture').innerHTML = `
+                        <div class="logo">✅</div>
+                        <h1>Success!</h1>
+                        <p>You will receive a confirmation SMS shortly with your safety code ##${safetyCode}##.</p>
+                    `;
+                } else {
+                    alert('Registration failed: ' + data.error);
+                }
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+    </script>
+</body>
+</html>
