@@ -319,16 +319,18 @@
         .shield-small { width: 24px; height: 28px; }
 
         /* Forms */
-        .form-group { margin-bottom: 20px; }
+        .form-group { margin-bottom: 24px; }
         
         .form-label {
             display: block;
-            font-size: 12px;
+            font-size: 16px;
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-            color: var(--primary-yellow);
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+
+        body.light-mode .form-label {
+            color: var(--text-light);
         }
 
         .form-input {
@@ -440,12 +442,39 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
+            margin-top: 15px;
         }
 
         .github-btn:hover {
             background: #2f363d;
             transform: translateY(-2px);
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+            color: rgba(255,255,255,0.4);
+            font-size: 13px;
+        }
+
+        body.light-mode .divider {
+            color: rgba(0,0,0,0.4);
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-dark);
+            margin: 0 15px;
+        }
+
+        body.light-mode .divider::before,
+        body.light-mode .divider::after {
+            background: var(--border-light);
         }
 
         /* Security Footer */
@@ -564,6 +593,11 @@
             text-align: center;
         }
 
+        body.light-mode .modal {
+            background: var(--card-light);
+            border-color: var(--border-light);
+        }
+
         /* Preview Boxes */
         .preview-box {
             background: rgba(0, 0, 0, 0.3);
@@ -587,6 +621,12 @@
         .safety-highlight {
             color: var(--primary-yellow);
             font-weight: 700;
+        }
+
+        /* Login arrow icon */
+        .arrow-icon {
+            width: 20px;
+            height: 20px;
         }
     </style>
 </head>
@@ -627,7 +667,7 @@
                 <span class="timer-display" id="timerDisplay">30:00</span>
             </div>
             <span id="usernameDisplay">User</span>
-            <button class="logout-btn" onclick="logout()">Logout</button>
+            <button class="logout-btn" onclick="showLogoutConfirm()">Logout</button>
             <button class="theme-toggle" onclick="toggleTheme()">
                 <span class="theme-icon" id="themeIcon2">🌙</span>
                 <span id="themeText2">Dark</span>
@@ -658,17 +698,40 @@
         </div>
     </div>
 
-    <!-- PAGE 2: Login -->
+    <!-- PAGE 2: Login (Updated to match reference image) -->
     <div id="page-login" class="page-container">
         <div class="center-container">
-            <div class="card">
-                <div class="card-header">
-                    <div class="logo-large">
-                        <div class="shield shield-large"></div>
+            <div class="card" style="max-width: 420px;">
+                <!-- Logo at top -->
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <div class="logo-medium" style="margin: 0 auto 15px;">
+                        <div class="shield shield-medium"></div>
                     </div>
-                    <h1>Secure Access</h1>
-                    <p>Authenticate securely using GitHub OAuth. No passwords stored—ever.</p>
+                    <h1 style="font-size: 28px; font-weight: 700;">Mobile <span style="color: var(--primary-yellow);">Objex</span></h1>
                 </div>
+
+                <h2 style="text-align: center; margin-bottom: 30px; font-size: 24px; font-weight: 600;">Login</h2>
+
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label class="form-label">MO Username:</label>
+                        <input type="text" class="form-input" id="loginUsername" placeholder="Enter MO Username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">MO Password:</label>
+                        <input type="password" class="form-input" id="loginPassword" placeholder="Enter Your Password" required>
+                    </div>
+
+                    <button type="submit" class="btn" id="loginBtn">
+                        <svg class="arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                        </svg>
+                        Login
+                    </button>
+                </form>
+
+                <div class="divider">OR</div>
 
                 <button onclick="loginWithGitHub()" class="github-btn">
                     <svg height="24" width="24" viewBox="0 0 16 16" fill="currentColor">
@@ -685,7 +748,7 @@
         </div>
     </div>
 
-    <!-- PAGE 3: Registration (Capture) - MATCHES YOUR SCREENSHOT -->
+    <!-- PAGE 3: Registration (Capture) -->
     <div id="page-register" class="page-container">
         <div class="center-container">
             
@@ -701,19 +764,19 @@
 
                 <form id="captureForm" onsubmit="handleRegister(event)">
                     <div class="form-group">
-                        <label class="form-label">Mobile Number *</label>
+                        <label class="form-label" style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--primary-yellow);">Mobile Number *</label>
                         <input type="tel" class="form-input" id="regPhone" placeholder="(555) 000-0000" required maxlength="14">
                         <div class="error-message" id="phoneError">Invalid phone number</div>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Confirm Mobile Number *</label>
+                        <label class="form-label" style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--primary-yellow);">Confirm Mobile Number *</label>
                         <input type="tel" class="form-input" id="regPhoneConfirm" placeholder="Confirm phone number" required maxlength="14">
                         <div class="error-message" id="phoneMatchError">Phone numbers do not match</div>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Safety Code *</label>
+                        <label class="form-label" style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--primary-yellow);">Safety Code *</label>
                         <input type="text" class="form-input" id="regSafetyCode" placeholder="4-6 characters (e.g., giant2)" required minlength="4" maxlength="6">
                         <div style="font-size: 11px; opacity: 0.6; margin-top: 5px;">
                             Will be formatted as ##giant2## in messages
@@ -721,7 +784,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Confirm Safety Code *</label>
+                        <label class="form-label" style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--primary-yellow);">Confirm Safety Code *</label>
                         <input type="text" class="form-input" id="regSafetyCodeConfirm" placeholder="Confirm safety code" required minlength="4" maxlength="6">
                         <div class="error-message" id="codeMatchError">Safety codes do not match</div>
                     </div>
@@ -834,7 +897,7 @@
 
                         <form id="sendForm" onsubmit="handleSend(event)">
                             <div class="form-group">
-                                <label class="form-label">Message Content *</label>
+                                <label class="form-label" style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--primary-yellow);">Message Content *</label>
                                 <textarea class="form-input" id="messageContent" rows="4" placeholder="Enter your secure message here..." maxlength="1600" required style="resize: vertical;"></textarea>
                                 <div style="text-align: right; font-size: 12px; opacity: 0.5; margin-top: 5px;">
                                     <span id="charCount">0</span> / 1600
@@ -895,6 +958,23 @@
         </div>
     </div>
 
+    <!-- Logout Confirmation Modal -->
+    <div class="modal-overlay" id="logoutModal">
+        <div class="modal">
+            <div style="font-size: 48px; margin-bottom: 15px;">🚪</div>
+            <h2 style="margin-bottom: 15px;">Confirm Logout</h2>
+            <p style="margin-bottom: 25px; opacity: 0.8;">
+                Are you sure you want to logout? Your session will be terminated.
+            </p>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn" onclick="confirmLogout()" style="flex: 1; background: #ff3b30;">Logout</button>
+                <button class="btn" onclick="closeLogoutModal()" style="flex: 1; background: transparent; border: 2px solid var(--border-dark); color: var(--text-dark);">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Session Expired Modal -->
     <div class="modal-overlay" id="expiredModal">
         <div class="modal">
@@ -926,8 +1006,10 @@
                 document.getElementById('mainNav').style.display = 'none';
                 document.getElementById('dashboardNav').style.display = 'none';
                 
-                // Update URL
-                window.location.hash = page;
+                // Update URL hash (preserve query params for register page)
+                if (page !== 'register') {
+                    window.location.hash = page;
+                }
                 
                 switch(page) {
                     case 'home':
@@ -960,9 +1042,11 @@
             },
 
             showRegister: function() {
+                // Get token from URL params (preserve existing query params)
                 const params = new URLSearchParams(window.location.search);
                 const token = params.get('token') || params.get('s');
                 
+                // Show register page
                 document.getElementById('page-register').classList.add('active');
                 
                 if (!token || !token.startsWith('sess_')) {
@@ -1016,11 +1100,68 @@
             window.location.href = `${API_URL}/auth/login`;
         }
 
-        function logout() {
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const btn = document.getElementById('loginBtn');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<span>⏳</span> Logging in...';
+            
+            try {
+                // Call the login API
+                const response = await fetch(`${API_URL}/api/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.token) {
+                    sessionToken = data.token;
+                    localStorage.setItem('mo_session', data.token);
+                    if (data.user) {
+                        localStorage.setItem('mo_user', JSON.stringify(data.user));
+                    }
+                    router.navigate('dashboard');
+                } else {
+                    throw new Error(data.error || 'Invalid credentials');
+                }
+            } catch (error) {
+                alert('Login failed: ' + error.message);
+                btn.disabled = false;
+                btn.innerHTML = `<svg class="arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg> Login`;
+            }
+        }
+
+        // Logout confirmation
+        function showLogoutConfirm() {
+            document.getElementById('logoutModal').classList.add('show');
+        }
+
+        function closeLogoutModal() {
+            document.getElementById('logoutModal').classList.remove('show');
+        }
+
+        function confirmLogout() {
+            closeLogoutModal();
+            performLogout();
+        }
+
+        function performLogout() {
             sessionToken = null;
             localStorage.removeItem('mo_session');
+            localStorage.removeItem('mo_user');
             clearInterval(timerInterval);
             window.location.href = window.location.pathname;
+        }
+
+        // Keep old function name for compatibility
+        function logout() {
+            performLogout();
         }
 
         // Registration
@@ -1105,8 +1246,16 @@
             sessionExpiry = Date.now() + (30 * 60 * 1000);
             startTimer();
             
-            // Generate capture URL
-            const url = `${window.location.origin}${window.location.pathname}?view=register&token=${sessionToken}`;
+            // Update username display if available
+            const userData = localStorage.getItem('mo_user');
+            if (userData) {
+                const user = JSON.parse(userData);
+                document.getElementById('usernameDisplay').textContent = user.name || user.login || user.username || 'User';
+            }
+            
+            // Generate capture URL - ensure it uses the current origin and path
+            const baseUrl = window.location.origin + window.location.pathname;
+            const url = `${baseUrl}?view=register&token=${sessionToken}`;
             document.getElementById('captureUrl').textContent = url;
             
             updateRecipientsUI();
@@ -1134,8 +1283,14 @@
             }
             const mins = Math.floor(remaining / 60000);
             const secs = Math.floor((remaining % 60000) / 1000);
-            document.getElementById('timerDisplay').textContent = 
-                `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            const display = document.getElementById('timerDisplay');
+            display.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            
+            if (mins < 5) {
+                display.classList.add('timer-low');
+            } else {
+                display.classList.remove('timer-low');
+            }
         }
 
         function copyUrl() {
@@ -1276,19 +1431,31 @@
         window.addEventListener('DOMContentLoaded', () => {
             setupPhoneFormatting();
             
-            // Check for token in URL (from GitHub callback)
+            // Check for token in URL (from GitHub callback or login)
             const params = new URLSearchParams(window.location.search);
             const token = params.get('token');
             const view = params.get('view');
             
             if (token) {
-                sessionToken = token;
-                localStorage.setItem('mo_session', token);
-                window.history.replaceState({}, '', window.location.pathname + '#dashboard');
-                router.navigate('dashboard');
+                // Check if it's a login token or GitHub callback
+                if (token.startsWith('mo_sess_') || token.startsWith('sess_')) {
+                    sessionToken = token;
+                    localStorage.setItem('mo_session', token);
+                    // Clean URL
+                    window.history.replaceState({}, '', window.location.pathname + '#dashboard');
+                    router.navigate('dashboard');
+                } else {
+                    // GitHub callback with token
+                    sessionToken = token;
+                    localStorage.setItem('mo_session', token);
+                    window.history.replaceState({}, '', window.location.pathname + '#dashboard');
+                    router.navigate('dashboard');
+                }
             } else if (view === 'register') {
+                // Important: Don't change hash for register, keep query params
                 router.navigate('register');
             } else {
+                // Check hash
                 const hash = window.location.hash.replace('#', '') || 'home';
                 router.navigate(hash);
             }
@@ -1300,9 +1467,13 @@
             updateHistory();
         });
 
-        // Handle hash changes
+        // Handle hash changes (but preserve query params for register page)
         window.addEventListener('hashchange', () => {
             const hash = window.location.hash.replace('#', '');
+            // If we have query params for register, don't process hash change
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('view') === 'register') return;
+            
             if (hash && !hash.includes('?')) router.navigate(hash);
         });
     </script>
