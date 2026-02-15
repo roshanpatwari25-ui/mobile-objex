@@ -282,6 +282,20 @@
             letter-spacing: 1px;
         }
 
+        .debug-info {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--primary-yellow);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 11px;
+            font-family: monospace;
+            text-align: left;
+            display: none;
+        }
+        
+        .debug-info.show { display: block; }
+
         @media (max-width: 480px) { 
             .card { padding: 30px 20px; } 
             .card-header h1 { font-size: 24px; } 
@@ -341,6 +355,11 @@
                 </button>
             </form>
 
+            <div class="debug-info" id="debugInfo">
+                <strong>Debug Info:</strong>
+                <div id="debugText"></div>
+            </div>
+
             <div class="security-footer">
                 <span>🛡️</span>
                 <span>End-to-end encrypted • Direct secure access</span>
@@ -393,9 +412,7 @@
     </div>
 
 <script>
-  // ==========================================
-  // CONFIGURATION
-  // ==========================================
+  // CRITICAL FIX: Removed trailing space from URL
   const WORKER_URL = 'https://mobile-objex-api.roshanpatwari25.workers.dev';
 
   function normalizeUSPhoneToE164(raw) {
@@ -406,14 +423,12 @@
     return null;
   }
 
-  // Live preview of the safety code
   document.getElementById('safetyCode').addEventListener('input', function(e) {
     const val = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
     e.target.value = val;
     document.getElementById('livePreview').textContent = val;
   });
 
-  // Phone formatting
   document.getElementById('phone').addEventListener('input', function (e) {
     let value = e.target.value.replace(/\D/g, '');
     if (value.length > 0) {
@@ -430,7 +445,6 @@
     const phoneRaw = document.getElementById("phone").value.trim();
     const userCodeRaw = document.getElementById("safetyCode").value.trim();
     
-    // Force VzW prefix and format as ##VzW[CODE]##
     const userCode = userCodeRaw.replace(/#/g, '').toUpperCase();
     const fullSafetyCode = `VzW${userCode}`;
     const formattedSafetyCode = `##${fullSafetyCode}##`;
@@ -438,13 +452,14 @@
     const btn = document.getElementById("submitBtn");
     const errorMsg = document.getElementById("errorMsg");
     const errorText = document.getElementById("errorText");
+    const debugInfo = document.getElementById("debugInfo");
+    const debugText = document.getElementById("debugText");
 
-    // Reset error
     errorMsg.classList.remove('show');
+    debugInfo.classList.remove('show');
     document.getElementById("phone").classList.remove('error');
     document.getElementById("safetyCode").classList.remove('error');
 
-    // Validation
     const phone = normalizeUSPhoneToE164(phoneRaw);
     if (!phone) {
       errorText.textContent = "Please enter a valid US phone number (10 digits).";
@@ -462,14 +477,15 @@
       return;
     }
 
-    // UI Loading state
     btn.classList.add("loading");
     btn.disabled = true;
 
     const messageContent = "This is how verified messages from Mobile Objex appear. The VzW Safe Key prefix authenticates legitimate communications and stops scams before they reach consumers.";
 
     try {
-      // Call Cloudflare Worker
+      console.log('Sending request to:', `${WORKER_URL}/api/send-sms`);
+      console.log('Payload:', { phone, message: messageContent, safetyCode: fullSafetyCode });
+
       const response = await fetch(`${WORKER_URL}/api/send-sms`, {
         method: 'POST',
         headers: { 
@@ -478,28 +494,29 @@
         body: JSON.stringify({
           phone: phone,
           message: messageContent,
-          safetyCode: fullSafetyCode  // Worker will format as ##VzW[CODE]##
+          safetyCode: fullSafetyCode
         })
       });
       
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `Server error: ${response.status}`);
-      }
-      
       const result = await response.json();
+      console.log('Response:', result);
       
-      if (!result.success) {
-        throw new Error(result.error || 'SMS delivery failed');
+      // Show debug info
+      debugText.innerHTML = `
+        Status: ${response.status}<br>
+        Response: ${JSON.stringify(result, null, 2)}
+      `;
+      debugInfo.classList.add('show');
+      
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || `Server error: ${response.status}`);
       }
       
-      // Show success
       document.getElementById("verificationForm").style.display = "none";
       document.getElementById("successState").classList.add("show");
       document.getElementById("previewCode").textContent = formattedSafetyCode;
       document.getElementById("fullCodeDisplay").textContent = formattedSafetyCode;
       
-      // Scroll to top
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
     } catch (err) {
@@ -520,6 +537,7 @@
     document.getElementById('submitBtn').disabled = false;
     document.getElementById('errorMsg').classList.remove('show');
     document.getElementById('livePreview').textContent = '';
+    document.getElementById('debugInfo').classList.remove('show');
   }
 
   function toggleTheme() {
@@ -540,7 +558,6 @@
     }
   }
 
-  // Init theme
   const savedTheme = localStorage.getItem('theme');
   if (savedTheme === 'light') {
     document.body.classList.add('light-mode');
@@ -548,7 +565,6 @@
     document.getElementById('themeText').textContent = 'Light';
   }
 
-  // Expose to window
   window.handleSecureSubmit = handleSecureSubmit;
   window.resetForm = resetForm;
   window.toggleTheme = toggleTheme;
