@@ -2,1965 +2,586 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mobile Objex | Secure Messaging Platform</title>
-    <meta name="description" content="Secure messaging platform powered by MobileObjex authentication">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Verizon Secure Messaging | Verified Communications</title>
     <style>
         :root {
-            --primary-yellow: #F4B942;
-            --primary-yellow-hover: #E5AA33;
-            --primary-glow: rgba(244, 185, 66, 0.6);
+            --vz-red: #cd040b;
+            --vz-red-hover: #a50309;
+            --vz-red-glow: rgba(205, 4, 11, 0.4);
             --bg-dark: #0a0a0f;
             --bg-light: #f5f5f7;
-            --card-dark: rgba(20, 20, 30, 0.7);
+            --card-dark: rgba(20, 20, 30, 0.85);
             --card-light: rgba(255, 255, 255, 0.95);
             --text-dark: #ffffff;
             --text-light: #1a1a1f;
-            --accent-glow: rgba(244, 185, 66, 0.4);
-            --border-dark: rgba(244, 185, 66, 0.2);
+            --accent-glow: rgba(205, 4, 11, 0.3);
+            --border-dark: rgba(205, 4, 11, 0.3);
             --border-light: rgba(0, 0, 0, 0.1);
-            --input-bg-dark: rgba(30, 30, 40, 0.6);
+            --input-bg-dark: rgba(10, 10, 15, 0.6);
             --input-bg-light: rgba(245, 245, 247, 0.8);
-            --error-red: #ff453a;
-            --success-green: #30d158;
-            --surface-dark: rgba(255, 255, 255, 0.03);
-            --surface-hover: rgba(244, 185, 66, 0.05);
+            --success-green: #34c759;
+            --error-red: #ff3b30;
+            --vz-black: #000000;
+            --vz-white: #ffffff;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        html {
-            scroll-behavior: smooth;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             min-height: 100vh;
             background: var(--bg-dark);
             color: var(--text-dark);
-            transition: background-color 0.4s ease, color 0.4s ease;
+            transition: all 0.4s ease;
             position: relative;
             overflow-x: hidden;
-            line-height: 1.6;
-            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            -webkit-font-smoothing: antialiased;
         }
 
-        body.light-mode { 
-            background: var(--bg-light); 
-            color: var(--text-light); 
-        }
+        body.light-mode { background: var(--bg-light); color: var(--text-light); }
 
-        /* Enhanced Animated Background */
         .bg-grid {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-image:
-                linear-gradient(rgba(244, 185, 66, 0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(244, 185, 66, 0.02) 1px, transparent 1px);
-            background-size: 60px 60px;
-            pointer-events: none;
-            z-index: 0;
-            animation: gridMove 25s linear infinite;
+            background-image: 
+                linear-gradient(rgba(205, 4, 11, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(205, 4, 11, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none; z-index: 0;
+            animation: gridMove 20s linear infinite;
         }
 
         @keyframes gridMove {
             0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
-            100% { transform: perspective(500px) rotateX(60deg) translateY(60px); }
+            100% { transform: perspective(500px) rotateX(60deg) translateY(50px); }
         }
 
         body.light-mode .bg-grid {
-            background-image:
-                linear-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
+            background-image: 
+                linear-gradient(rgba(205, 4, 11, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(205, 4, 11, 0.02) 1px, transparent 1px);
         }
 
-        /* Ambient Glow Effects */
-        .ambient-glow {
-            position: fixed;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(244, 185, 66, 0.08) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: 1;
-            animation: float-glow 20s ease-in-out infinite;
+        .orb {
+            position: fixed; border-radius: 50%;
+            filter: blur(80px); opacity: 0.15; z-index: 0;
+            animation: orb-pulse 8s ease-in-out infinite;
         }
 
-        .ambient-glow:nth-child(1) { top: -200px; right: -200px; animation-delay: 0s; }
-        .ambient-glow:nth-child(2) { bottom: -200px; left: -200px; animation-delay: -10s; }
+        .orb-1 { width: 400px; height: 400px; background: radial-gradient(circle, var(--vz-red) 0%, transparent 70%); top: -100px; right: -100px; animation-delay: 0s; }
+        .orb-2 { width: 300px; height: 300px; background: radial-gradient(circle, var(--vz-red) 0%, transparent 70%); bottom: -50px; left: -50px; animation-delay: 4s; }
 
-        @keyframes float-glow {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(30px, -30px) scale(1.1); }
-        }
-
-        .particles {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 2; overflow: hidden;
-        }
-
-        .particle {
-            position: absolute; width: 3px; height: 3px;
-            background: var(--primary-yellow); border-radius: 50%;
-            opacity: 0.2; 
-            animation: float-particle 20s infinite;
-            box-shadow: 0 0 15px var(--primary-yellow);
-        }
-
-        @keyframes float-particle {
-            0% { transform: translateY(100vh) translateX(0); opacity: 0; }
-            10% { opacity: 0.3; }
-            90% { opacity: 0.3; }
-            100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
-        }
-
-        /* Premium Navigation */
-        nav {
-            position: fixed; top: 0; width: 100%;
-            padding: 16px 40px;
-            display: none;
-            justify-content: space-between; align-items: center;
-            z-index: 1000;
-            background: rgba(10, 10, 15, 0.85);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border-bottom: 1px solid rgba(244, 185, 66, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        body.light-mode nav { 
-            background: rgba(255, 255, 255, 0.85); 
-            border-bottom-color: rgba(0, 0, 0, 0.05); 
-        }
-
-        .nav-logo {
-            display: flex; align-items: center; gap: 12px;
-            font-size: 22px; font-weight: 800; text-decoration: none;
-            color: var(--text-dark); cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            letter-spacing: -0.5px;
-        }
-        
-        .nav-logo:hover { 
-            transform: scale(1.02); 
-            filter: drop-shadow(0 0 20px rgba(244, 185, 66, 0.3));
-        }
-        
-        body.light-mode .nav-logo { color: var(--text-light); }
-        .nav-logo span { 
-            color: var(--primary-yellow); 
-            text-shadow: 0 0 20px rgba(244, 185, 66, 0.4);
-        }
-
-        .logo-icon {
-            width: 38px; height: 38px;
-            background: linear-gradient(135deg, #F4B942 0%, #FFD700 100%);
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            position: relative;
-            box-shadow: 0 4px 20px rgba(244, 185, 66, 0.3);
-            transition: transform 0.3s ease;
-        }
-
-        .nav-logo:hover .logo-icon {
-            transform: rotate(5deg) scale(1.05);
-        }
-
-        .shield {
-            width: 18px; height: 22px;
-            background: #0a0a0f;
-            clip-path: polygon(50% 0%, 100% 25%, 100% 65%, 50% 100%, 0% 65%, 0% 25%);
-            position: relative;
-        }
-        .shield::after {
-            content: '';
-            position: absolute; width: 50%; height: 100%; right: 0;
-            background: rgba(244, 185, 66, 0.3);
-            clip-path: polygon(100% 0%, 100% 100%, 0% 100%, 0% 0%);
-        }
-
-        .nav-links { display: flex; gap: 32px; align-items: center; }
-
-        .nav-link {
-            color: rgba(255, 255, 255, 0.7);
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            letter-spacing: 0.3px;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            position: relative;
-            padding: 8px 0;
-        }
-
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--primary-yellow);
-            transition: width 0.3s ease;
-            border-radius: 2px;
-        }
-
-        .nav-link:hover::after { width: 100%; }
-        body.light-mode .nav-link { color: rgba(0, 0, 0, 0.6); }
-        .nav-link:hover { color: var(--primary-yellow); }
+        @keyframes orb-pulse { 0%, 100% { transform: scale(1); opacity: 0.15; } 50% { transform: scale(1.2); opacity: 0.25; } }
 
         .theme-toggle {
-            background: var(--surface-dark);
-            border: 1px solid var(--border-dark);
-            border-radius: 50px;
-            padding: 8px 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            color: var(--text-dark);
-            font-family: inherit;
-            font-size: 13px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            backdrop-filter: blur(10px);
+            position: fixed; top: 20px; right: 20px; z-index: 1000;
+            background: var(--card-dark); border: 1px solid var(--border-dark); border-radius: 50px;
+            padding: 8px 15px; cursor: pointer; display: flex; align-items: center; gap: 10px;
+            transition: all 0.3s ease; backdrop-filter: blur(10px); color: var(--text-dark);
+            font-family: inherit; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            touch-action: manipulation;
         }
 
-        body.light-mode .theme-toggle { 
-            background: rgba(0, 0, 0, 0.05); 
-            border-color: var(--border-light); 
-            color: var(--text-light); 
+        body.light-mode .theme-toggle { background: var(--card-light); border-color: var(--border-light); color: var(--text-light); }
+        .theme-toggle:hover { transform: scale(1.05) translateY(-2px); box-shadow: 0 0 30px var(--accent-glow); border-color: var(--vz-red); }
+
+        .container { position: relative; z-index: 10; width: 100%; max-width: 480px; animation: slideUp 0.6s ease-out; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        .logo-container { text-align: center; margin-bottom: 30px; }
+
+        .logo-icon {
+            width: 70px; height: 70px; background: linear-gradient(135deg, var(--vz-red) 0%, #ff1a1a 100%);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 15px; box-shadow: 0 4px 20px rgba(205, 4, 11, 0.4);
+            animation: logo-glow 3s infinite ease-in-out;
+            border: 3px solid rgba(255, 255, 255, 0.1);
         }
 
-        .theme-toggle:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 4px 20px rgba(244, 185, 66, 0.2); 
-            border-color: var(--primary-yellow); 
+        @keyframes logo-glow { 0%, 100% { box-shadow: 0 4px 20px rgba(205, 4, 11, 0.4); } 50% { box-shadow: 0 4px 30px rgba(205, 4, 11, 0.6), 0 0 40px rgba(205, 4, 11, 0.2); } }
+
+        .vz-logo-inner {
+            color: white;
+            font-size: 28px;
+            font-weight: 900;
+            font-style: italic;
+            letter-spacing: -1px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
-        .session-timer {
-            display: flex; align-items: center; gap: 8px;
-            background: rgba(244, 185, 66, 0.1);
-            border: 1px solid rgba(244, 185, 66, 0.2);
-            padding: 8px 16px;
-            border-radius: 50px;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--primary-yellow);
-            margin-right: 12px;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-        }
+        .logo-text { font-size: 26px; font-weight: 800; color: var(--text-dark); letter-spacing: -0.5px; }
+        .logo-text span { color: var(--vz-red); font-weight: 900; }
+        body.light-mode .logo-text { color: var(--text-light); }
 
-        .session-timer:hover {
-            background: rgba(244, 185, 66, 0.15);
-            transform: translateY(-1px);
-        }
+        .tagline { font-size: 13px; color: rgba(255, 255, 255, 0.6); letter-spacing: 2px; text-transform: uppercase; margin-top: 8px; font-weight: 600; }
+        body.light-mode .tagline { color: rgba(0, 0, 0, 0.5); }
 
-        .timer-display { font-variant-numeric: tabular-nums; min-width: 50px; text-align: center; }
-        .timer-low { color: var(--error-red); animation: pulse 1s infinite; }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        .logout-btn {
-            background: transparent;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: var(--text-dark);
-            padding: 8px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        body.light-mode .logout-btn { 
-            border-color: rgba(0, 0, 0, 0.2); 
-            color: var(--text-light); 
-        }
-
-        .logout-btn:hover { 
-            border-color: var(--error-red); 
-            color: var(--error-red);
-            background: rgba(255, 69, 58, 0.1);
-        }
-
-        .nav-right { display: flex; align-items: center; gap: 12px; }
-
-        /* Page Containers with Fade */
-        .page-container { 
-            display: none; 
-            position: relative; 
-            z-index: 10;
-            opacity: 0;
-            transform: translateY(10px);
-            transition: opacity 0.4s ease, transform 0.4s ease;
-        }
-        
-        .page-container.active { 
-            display: block; 
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* Center Container */
-        .center-container {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-            padding-top: 100px;
-        }
-
-        /* Premium Cards with Glassmorphism */
         .card {
-            background: var(--card-dark);
-            border: 1px solid rgba(244, 185, 66, 0.15);
-            border-radius: 24px;
-            padding: 40px;
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            box-shadow: 
-                0 25px 50px -12px rgba(0, 0, 0, 0.5),
-                0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-            max-width: 480px;
-            width: 100%;
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background: var(--card-dark); border: 1px solid var(--border-dark); border-radius: 24px;
+            padding: 40px; backdrop-filter: blur(20px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(205, 4, 11, 0.1);
+            transition: all 0.4s ease; position: relative; overflow: hidden;
         }
 
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 
-                0 30px 60px -12px rgba(0, 0, 0, 0.6),
-                0 0 0 1px rgba(244, 185, 66, 0.2) inset,
-                0 0 30px rgba(244, 185, 66, 0.1);
-        }
-
-        body.light-mode .card { 
-            background: var(--card-light); 
-            border-color: rgba(0, 0, 0, 0.08);
-            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.1);
-        }
+        body.light-mode .card { background: var(--card-light); border-color: var(--border-light); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); }
 
         .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(244, 185, 66, 0.3), transparent);
+            content: ''; position: absolute; top: -2px; left: -2px; right: -2px; bottom: -2px;
+            background: linear-gradient(45deg, transparent, var(--vz-red), transparent);
+            z-index: -1; opacity: 0; transition: opacity 0.3s ease; border-radius: 26px;
         }
 
-        .card-header { text-align: center; margin-bottom: 32px; }
-        .card-header h1 { 
-            font-size: 32px; 
-            margin-bottom: 12px; 
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            line-height: 1.2;
-        }
-        .card-header h2 { 
-            font-size: 24px; 
-            margin-bottom: 8px; 
-            font-weight: 700;
-            letter-spacing: -0.3px;
-        }
-        .card-header p { 
-            font-size: 15px; 
-            opacity: 0.7; 
-            line-height: 1.6;
-            max-width: 90%;
-            margin: 0 auto;
+        .card:hover::before { opacity: 0.15; animation: border-glow 2s linear infinite; }
+        @keyframes border-glow { 0%, 100% { filter: blur(10px); } 50% { filter: blur(20px); } }
+
+        .card-header { text-align: center; margin-bottom: 30px; }
+        .card-header h1 { font-size: 28px; margin-bottom: 12px; font-weight: 800; line-height: 1.2; }
+        .card-header p { font-size: 15px; opacity: 0.7; line-height: 1.5; }
+
+        .badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(205, 4, 11, 0.1); border: 1px solid var(--border-dark);
+            padding: 6px 12px; border-radius: 50px; font-size: 11px; color: var(--vz-red);
+            text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; font-weight: 700;
         }
 
-        /* Enhanced Logo Animations */
-        .logo-large {
-            width: 80px; height: 80px;
-            background: linear-gradient(135deg, #F4B942 0%, #FFD700 100%);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 24px;
-            box-shadow: 0 10px 40px rgba(244, 185, 66, 0.4);
-            animation: logo-glow 4s infinite ease-in-out;
-            position: relative;
-        }
-
-        .logo-large::after {
-            content: '';
-            position: absolute;
-            inset: -2px;
-            border-radius: 22px;
-            background: linear-gradient(135deg, rgba(244, 185, 66, 0.5), transparent);
-            z-index: -1;
-            filter: blur(10px);
-            opacity: 0.5;
-        }
-
-        @keyframes logo-glow {
-            0%, 100% { box-shadow: 0 10px 40px rgba(244, 185, 66, 0.4); transform: scale(1); }
-            50% { box-shadow: 0 15px 60px rgba(244, 185, 66, 0.6); transform: scale(1.02); }
-        }
-
-        .logo-medium {
-            width: 60px; height: 60px;
-            background: linear-gradient(135deg, #F4B942 0%, #FFD700 100%);
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 16px;
-            box-shadow: 0 8px 30px rgba(244, 185, 66, 0.3);
-        }
-
-        .shield-large { width: 38px; height: 46px; }
-        .shield-medium { width: 28px; height: 34px; }
-
-        /* Premium Forms */
-        .form-group { margin-bottom: 24px; position: relative; }
-        
-        .form-label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            margin-bottom: 10px;
-            color: rgba(255, 255, 255, 0.9);
-            transition: color 0.3s ease;
-        }
-
-        body.light-mode .form-label {
-            color: rgba(0, 0, 0, 0.8);
-        }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; color: var(--vz-red); }
 
         .form-input {
-            width: 100%;
-            padding: 16px 20px;
-            border: 1.5px solid rgba(244, 185, 66, 0.2);
-            border-radius: 12px;
-            background: rgba(30, 30, 40, 0.6);
-            color: var(--text-dark);
-            font-size: 16px;
-            font-family: inherit;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            outline: none;
+            width: 100%; padding: 16px 20px; border: 2px solid var(--border-dark); border-radius: 12px;
+            background: var(--input-bg-dark); color: var(--text-dark); font-size: 16px; font-family: inherit;
+            transition: all 0.3s ease; outline: none;
+            -webkit-appearance: none; appearance: none;
+        }
+
+        body.light-mode .form-input { background: var(--input-bg-light); color: var(--text-light); border-color: var(--border-light); }
+        .form-input:focus { border-color: var(--vz-red); box-shadow: 0 0 0 4px var(--accent-glow); transform: translateY(-2px); }
+        .form-input.error { border-color: var(--error-red); box-shadow: 0 0 0 4px rgba(255, 59, 48, 0.2); }
+
+        .hint { font-size: 12px; opacity: 0.6; margin-top: 6px; display: block; }
+        
+        .prefix-hint {
+            display: inline-block;
+            background: rgba(205, 4, 11, 0.15);
+            color: var(--vz-red);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            border: 1px solid rgba(205, 4, 11, 0.2);
+        }
+
+        .btn {
+            width: 100%; padding: 18px; background: linear-gradient(135deg, var(--vz-red) 0%, var(--vz-red-hover) 100%);
+            color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700;
+            cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px;
+            margin-top: 10px; box-shadow: 0 4px 15px rgba(205, 4, 11, 0.3);
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            touch-action: manipulation;
             position: relative;
+            overflow: hidden;
         }
 
-        body.light-mode .form-input {
-            background: rgba(245, 245, 247, 0.8);
-            color: var(--text-light);
-            border-color: rgba(0, 0, 0, 0.15);
+        .btn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(205, 4, 11, 0.5); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transform: rotate(30deg);
+            transition: all 0.6s;
+        }
+        
+        .btn:hover::after { left: 100%; }
+
+        .btn-secondary { background: transparent; border: 2px solid var(--vz-red); color: var(--vz-red); margin-top: 15px; }
+        .btn-secondary:hover { background: rgba(205, 4, 11, 0.1); }
+
+        .success-state { display: none; text-align: center; animation: fadeIn 0.5s ease; }
+        .success-state.show { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+        .success-icon { font-size: 64px; margin-bottom: 20px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+        .success-state h2 { font-size: 24px; margin-bottom: 15px; color: var(--success-green); }
+        .success-state p { opacity: 0.8; line-height: 1.6; margin-bottom: 25px; }
+
+        .phone-preview {
+            background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border-dark); border-radius: 16px;
+            padding: 20px; margin: 25px 0; text-align: left; position: relative;
         }
 
-        .form-input:hover {
-            border-color: rgba(244, 185, 66, 0.4);
-            background: rgba(30, 30, 40, 0.8);
+        body.light-mode .phone-preview { background: rgba(0, 0, 0, 0.05); border-color: var(--border-light); }
+
+        .phone-header { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--vz-red); margin-bottom: 10px; font-weight: 700; }
+
+        .phone-screen {
+            background: rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 15px;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 14px; line-height: 1.4;
+            border-left: 3px solid var(--success-green);
         }
 
-        .form-input:focus {
-            border-color: var(--primary-yellow);
-            box-shadow: 0 0 0 4px rgba(244, 185, 66, 0.15);
-            background: rgba(30, 30, 40, 0.9);
-            transform: translateY(-1px);
+        body.light-mode .phone-screen { background: rgba(255, 255, 255, 0.8); color: #1a1a1f; }
+
+        .safety-prefix { color: var(--vz-red); font-weight: 800; background: rgba(205, 4, 11, 0.1); padding: 2px 6px; border-radius: 4px; }
+
+        .security-footer {
+            margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border-dark);
+            text-align: center; font-size: 12px; opacity: 0.6;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
 
-        .form-input.error {
-            border-color: var(--error-red);
-            box-shadow: 0 0 0 4px rgba(255, 69, 58, 0.15);
-            animation: shake 0.5s ease-in-out;
+        body.light-mode .security-footer { border-top-color: var(--border-light); }
+
+        .spinner {
+            width: 20px; height: 20px; border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%; border-top-color: white;
+            animation: spin 1s ease-in-out infinite; display: none;
         }
 
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .btn.loading .spinner { display: inline-block; }
+        .btn.loading .btn-text { display: none; }
+        
+        .error-message {
+            background: rgba(255, 59, 48, 0.1);
+            border: 1px solid rgba(255, 59, 48, 0.3);
+            color: #ff3b30;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .error-message.show { display: flex; animation: shake 0.5s ease; }
+        
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-5px); }
             75% { transform: translateX(5px); }
         }
 
-        .error-message {
-            color: var(--error-red);
-            font-size: 12px;
-            margin-top: 8px;
-            display: none;
-            align-items: center;
-            gap: 6px;
-            font-weight: 500;
-            animation: slideIn 0.3s ease;
+        body.light-mode .spam-notice { background: rgba(205, 4, 11, 0.03); border-color: var(--border-light); }
+
+        .meeting-cta {
+            background: rgba(205, 4, 11, 0.1); border: 1px solid var(--border-dark);
+            border-radius: 12px; padding: 20px; margin-top: 25px; text-align: center;
         }
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        body.light-mode .meeting-cta { background: rgba(205, 4, 11, 0.05); border-color: var(--border-light); }
 
-        .error-message.show { display: flex; }
+        .meeting-cta h3 { font-size: 18px; margin-bottom: 10px; color: var(--vz-red); }
+        .meeting-cta p { font-size: 14px; margin-bottom: 15px; opacity: 0.8; }
 
-        /* Premium Buttons */
-        .btn {
-            width: 100%;
-            padding: 16px 24px;
-            background: linear-gradient(135deg, #F4B942 0%, #E5AA33 100%);
-            color: #0a0a0f;
-            border: none;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(244, 185, 66, 0.3);
-        }
+        .calendly-link { color: var(--vz-red); text-decoration: none; font-weight: 700; border-bottom: 1px solid var(--vz-red); padding-bottom: 2px; transition: all 0.3s; }
+        .calendly-link:hover { opacity: 0.8; }
 
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.5s;
-        }
-
-        .btn:hover::before {
-            left: 100%;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(244, 185, 66, 0.4);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-            box-shadow: 0 4px 15px rgba(244, 185, 66, 0.3);
-        }
-
-        .btn:disabled { 
-            opacity: 0.6; 
-            cursor: not-allowed; 
-            transform: none;
-            filter: grayscale(0.5);
-        }
-
-        .btn-copy {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(244, 185, 66, 0.3);
-            color: var(--text-dark);
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            white-space: nowrap;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-
-        body.light-mode .btn-copy {
-            background: rgba(0, 0, 0, 0.05);
-            border-color: rgba(0, 0, 0, 0.2);
-            color: var(--text-light);
-        }
-
-        .btn-copy:hover { 
-            background: var(--primary-yellow); 
-            color: #0a0a0f;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 15px rgba(244, 185, 66, 0.3);
-        }
-
-        .github-btn {
-            background: #24292e;
-            color: white;
-            width: 100%;
-            padding: 16px;
-            border: none;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 16px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .github-btn:hover {
-            background: #2f363d;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-            border-color: rgba(255,255,255,0.2);
-        }
-
-        .divider {
-            display: flex;
-            align-items: center;
-            margin: 28px 0;
-            color: rgba(255,255,255,0.3);
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        body.light-mode .divider {
-            color: rgba(0,0,0,0.3);
-        }
-
-        .divider::before,
-        .divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(244, 185, 66, 0.3), transparent);
-            margin: 0 15px;
-        }
-
-        /* Enhanced Security Footer */
-        .security-footer {
-            margin-top: 32px;
-            padding-top: 24px;
-            border-top: 1px solid rgba(244, 185, 66, 0.1);
-            text-align: center;
-            font-size: 12px;
-            opacity: 0.7;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            color: rgba(255,255,255,0.6);
-            font-weight: 500;
-        }
-
-        body.light-mode .security-footer { 
-            border-top-color: rgba(0, 0, 0, 0.08); 
-            color: rgba(0,0,0,0.5);
-        }
-
-        /* Premium Dashboard */
-        .container {
-            max-width: 1200px;
-            margin: 100px auto 40px;
-            padding: 24px;
-        }
-
-        .page-header { 
-            margin-bottom: 48px;
-            position: relative;
-        }
-        
-        .page-header::after {
-            content: '';
-            position: absolute;
-            bottom: -20px;
-            left: 0;
-            width: 60px;
-            height: 3px;
-            background: var(--primary-yellow);
-            border-radius: 3px;
-        }
-        
-        .page-header h1 { 
-            font-size: 40px; 
-            margin-bottom: 12px; 
-            font-weight: 800;
-            letter-spacing: -1px;
-            line-height: 1.2;
-        }
-        
-        .page-header p { 
-            font-size: 17px; 
-            opacity: 0.7;
-            font-weight: 400;
-        }
-
-        /* Enhanced Tabs */
-        .tabs { 
-            display: flex; 
-            gap: 8px; 
-            margin-bottom: 32px; 
-            border-bottom: 2px solid rgba(244, 185, 66, 0.1);
-            padding-bottom: 2px;
-        }
-
-        .tab {
-            padding: 14px 28px;
-            background: transparent;
-            border: none;
-            border-bottom: 3px solid transparent;
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            position: relative;
-            margin-bottom: -2px;
-        }
-
-        .tab.active { 
-            opacity: 1; 
-            color: var(--primary-yellow); 
-            border-bottom-color: var(--primary-yellow);
-            text-shadow: 0 0 20px rgba(244, 185, 66, 0.3);
-        }
-
-        .tab:hover:not(.active) {
-            color: rgba(255, 255, 255, 0.8);
-            background: rgba(244, 185, 66, 0.05);
-            border-radius: 8px 8px 0 0;
-        }
-
-        .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
-
-        /* Premium URL Box */
-        .url-box {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(244, 185, 66, 0.25);
-            border-radius: 16px;
-            padding: 20px;
-            margin: 24px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 16px;
+        .code-display {
             font-family: 'SF Mono', Monaco, monospace;
-            color: var(--primary-yellow);
-            font-size: 14px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .url-box::before {
-            content: '🔐';
-            position: absolute;
-            right: 20px;
-            opacity: 0.1;
-            font-size: 60px;
-            pointer-events: none;
-        }
-
-        .content-grid { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 32px; 
-        }
-
-        @media (max-width: 968px) { 
-            .content-grid { grid-template-columns: 1fr; } 
-            nav { padding: 16px 20px; }
-            .container { padding: 16px; }
-        }
-
-        /* Success/Error States */
-        .hidden { display: none !important; }
-
-        .success-icon { 
-            font-size: 64px; 
-            margin-bottom: 20px; 
-            text-align: center;
-            filter: drop-shadow(0 0 20px rgba(244, 185, 66, 0.4));
-        }
-
-        .invalid-session {
-            text-align: center;
-            padding: 40px 20px;
-        }
-
-        .invalid-session h2 { 
-            color: var(--error-red); 
-            margin-bottom: 16px;
-            font-weight: 700;
-        }
-
-        /* Premium Modals */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            backdrop-filter: blur(8px);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .modal-overlay.show { 
-            display: flex; 
-            opacity: 1;
-        }
-
-        .modal {
-            background: var(--card-dark);
-            border: 1px solid rgba(244, 185, 66, 0.2);
-            border-radius: 24px;
-            padding: 40px;
-            max-width: 420px;
-            width: 90%;
-            text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
-            transform: scale(0.95);
-            transition: transform 0.3s ease;
-        }
-
-        .modal-overlay.show .modal {
-            transform: scale(1);
-        }
-
-        body.light-mode .modal {
-            background: var(--card-light);
-            border-color: rgba(0, 0, 0, 0.1);
-        }
-
-        /* Enhanced Preview Boxes */
-        .preview-box {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(244, 185, 66, 0.2);
-            border-radius: 12px;
-            padding: 16px;
-            margin: 20px 0;
-            font-family: 'SF Mono', Monaco, monospace;
-            font-size: 13px;
-            text-align: left;
-            position: relative;
-            backdrop-filter: blur(10px);
-        }
-
-        .preview-header {
-            color: var(--primary-yellow);
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .safety-highlight {
-            color: var(--primary-yellow);
-            font-weight: 700;
-            text-shadow: 0 0 10px rgba(244, 185, 66, 0.3);
-        }
-
-        /* Loading Skeleton */
-        .skeleton {
-            background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
+            background: rgba(205, 4, 11, 0.1);
+            border: 1px dashed var(--vz-red);
+            padding: 12px;
             border-radius: 8px;
+            margin: 10px 0;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--vz-red);
+            letter-spacing: 1px;
         }
 
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-
-        /* Arrow Icon */
-        .arrow-icon {
-            width: 20px;
-            height: 20px;
-            transition: transform 0.3s ease;
-        }
-
-        .btn:hover .arrow-icon {
-            transform: translateX(3px);
-        }
-
-        /* Toast Notification */
-        .toast {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            background: rgba(30, 30, 40, 0.95);
-            border: 1px solid rgba(244, 185, 66, 0.3);
-            color: var(--text-dark);
-            padding: 16px 24px;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            z-index: 3000;
-            transform: translateY(100px);
-            opacity: 0;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            backdrop-filter: blur(10px);
-        }
-
-        .toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        .toast.success {
-            border-color: var(--success-green);
-            background: rgba(48, 209, 88, 0.1);
-        }
-
-        /* User List Styling */
-        .user-item {
-            background: rgba(244,185,66,0.05); 
-            border: 1px solid rgba(244, 185, 66, 0.15); 
-            padding: 16px; 
-            border-radius: 12px; 
-            margin-bottom: 12px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            transition: all 0.2s ease;
-        }
-
-        .user-item:hover {
-            background: rgba(244,185,66,0.1);
-            transform: translateX(4px);
-        }
-
-        .user-info {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .user-phone {
-            font-weight: 600; 
-            font-size: 15px;
-        }
-
-        .user-code {
-            color: var(--primary-yellow); 
-            font-family: 'SF Mono', Monaco, monospace; 
-            font-size: 13px; 
-            font-weight: 600;
-        }
-
-        .user-time {
-            font-size: 12px;
-            opacity: 0.5;
-            margin-top: 4px;
-        }
-
-        /* Checkbox styling */
-        .recipient-checkbox {
-            width: 22px; 
-            height: 22px; 
-            accent-color: var(--primary-yellow); 
-            cursor: pointer;
-        }
-
-        /* Responsive Typography */
-        @media (max-width: 640px) {
-            .card-header h1 { font-size: 24px; }
-            .page-header h1 { font-size: 28px; }
-            .card { padding: 24px; }
-        }
-
-        /* Focus Visible for Accessibility */
-        *:focus-visible {
-            outline: 2px solid var(--primary-yellow);
-            outline-offset: 2px;
-        }
-
-        /* Reduced Motion */
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-
-        /* Refresh Button */
-        .refresh-btn {
-            background: transparent;
-            border: 1px solid rgba(244, 185, 66, 0.3);
-            color: var(--primary-yellow);
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.3s ease;
-            margin-left: auto;
-        }
-
-        .refresh-btn:hover {
-            background: rgba(244, 185, 66, 0.1);
-            transform: translateY(-1px);
-        }
-
-        .refresh-btn.spinning svg {
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
+        @media (max-width: 480px) { 
+            .card { padding: 30px 20px; } 
+            .card-header h1 { font-size: 24px; } 
+            .theme-toggle { top: 10px; right: 10px; padding: 6px 12px; font-size: 11px; }
+            .logo-icon { width: 60px; height: 60px; }
+            .vz-logo-inner { font-size: 24px; }
         }
     </style>
 </head>
 <body>
-    <!-- Enhanced Background -->
     <div class="bg-grid"></div>
-    <div class="ambient-glow"></div>
-    <div class="ambient-glow"></div>
-    <div class="particles" id="particles"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
 
-    <!-- Navigation -->
-    <nav id="mainNav">
-        <div class="nav-logo" onclick="router.navigate('login')">
-            <div class="logo-icon"><div class="shield"></div></div>
-            Mobile<span>Objex</span>
-        </div>
-        <div class="nav-links">
-            <button class="theme-toggle" onclick="toggleTheme()">
-                <span class="theme-icon" id="themeIcon">🌙</span>
-                <span id="themeText">Dark</span>
-            </button>
-        </div>
-    </nav>
+    <button class="theme-toggle" onclick="toggleTheme()">
+        <span class="theme-icon" id="themeIcon">🌙</span>
+        <span id="themeText">Dark</span>
+    </button>
 
-    <nav id="dashboardNav">
-        <div class="nav-logo">
-            <div class="logo-icon"><div class="shield"></div></div>
-            Mobile<span>Objex</span>
-        </div>
-        <div class="nav-right">
-            <div class="session-timer">
-                <span>⏱️</span>
-                <span class="timer-display" id="timerDisplay">30:00</span>
+    <div class="container">
+        <div class="logo-container">
+            <div class="logo-icon">
+                <div class="vz-logo-inner">Vz</div>
             </div>
-            <span id="usernameDisplay" style="font-weight: 600;">User</span>
-            <button class="logout-btn" onclick="showLogoutConfirm()">Logout</button>
-            <button class="theme-toggle" onclick="toggleTheme()">
-                <span class="theme-icon" id="themeIcon2">🌙</span>
-                <span id="themeText2">Dark</span>
-            </button>
+            <div class="logo-text">Verizon <span>Secure</span></div>
+            <div class="tagline">Verified Business Communications</div>
         </div>
-    </nav>
 
-    <!-- PAGE 1: Login (Default) -->
-    <div id="page-login" class="page-container active">
-        <div class="center-container">
-            <div class="card" style="max-width: 420px;">
-                <div style="text-align: center; margin-bottom: 32px;">
-                    <div class="logo-large" style="margin: 0 auto 24px;">
-                        <div class="shield shield-large"></div>
-                    </div>
-                    <h1 style="font-size: 32px; margin-bottom: 8px; font-weight: 800; letter-spacing: -0.5px;">Mobile <span style="color: var(--primary-yellow);">Objex</span></h1>
-                    <p style="opacity: 0.7; font-size: 15px;">Secure Messaging Platform</p>
-                </div>
-
-                <form id="loginForm" onsubmit="handleLogin(event)">
-                    <div class="form-group">
-                        <label class="form-label">MO Username</label>
-                        <input type="text" class="form-input" id="loginUsername" placeholder="Enter MO Username" required autocomplete="username">
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">MO Password</label>
-                        <input type="password" class="form-input" id="loginPassword" placeholder="Enter Your Password" required autocomplete="current-password">
-                    </div>
-
-                    <button type="submit" class="btn" id="loginBtn" style="margin-top: 8px;">
-                        <svg class="arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
-                        </svg>
-                        Login
-                    </button>
-                </form>
-
-                <div class="divider">OR</div>
-
-                <button onclick="loginWithGitHub()" class="github-btn">
-                    <svg height="22" width="22" viewBox="0 0 16 16" fill="currentColor">
-                        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
-                    </svg>
-                    Continue with GitHub
-                </button>
-
-                <div class="security-footer">
-                    <span>🔒</span>
-                    <span>Secured by Mobile Objex • End-to-end encrypted</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- PAGE 2: Registration (Public Link) -->
-    <div id="page-register" class="page-container">
-        <div class="center-container">
-            <div class="card" id="registerForm" style="max-width: 480px;">
-                <div style="text-align: center; margin-bottom: 32px;">
-                    <div class="logo-medium" style="margin: -70px auto 16px; border: 3px solid var(--bg-dark); box-shadow: 0 0 0 4px rgba(244, 185, 66, 0.1);">
-                        <div class="shield shield-medium"></div>
-                    </div>
-                    <h1 style="font-size: 28px; margin-bottom: 8px;">Secure Registration</h1>
-                    <p style="opacity: 0.7; font-size: 15px; line-height: 1.5;">Enter your mobile number and preferred safety code to receive verified secure messages.</p>
-                </div>
-
-                <form id="captureForm" onsubmit="handleRegister(event)">
-                    <div class="form-group">
-                        <label class="form-label" style="color: var(--primary-yellow);">Mobile Number *</label>
-                        <input type="tel" class="form-input" id="regPhone" placeholder="(555) 000-0000" required maxlength="14" autocomplete="tel">
-                        <div class="error-message" id="phoneError">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            Invalid phone number
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label" style="color: var(--primary-yellow);">Confirm Mobile Number *</label>
-                        <input type="tel" class="form-input" id="regPhoneConfirm" placeholder="Confirm phone number" required maxlength="14" autocomplete="tel">
-                        <div class="error-message" id="phoneMatchError">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            Phone numbers do not match
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label" style="color: var(--primary-yellow);">Safety Code *</label>
-                        <input type="text" class="form-input" id="regSafetyCode" placeholder="4-6 characters (e.g., giant2)" required minlength="4" maxlength="6" autocomplete="off">
-                        <div style="font-size: 12px; opacity: 0.6; margin-top: 8px; display: flex; align-items: center; gap: 6px;">
-                            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            Will be formatted as ##giant2## in messages
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label" style="color: var(--primary-yellow);">Confirm Safety Code *</label>
-                        <input type="text" class="form-input" id="regSafetyCodeConfirm" placeholder="Confirm safety code" required minlength="4" maxlength="6" autocomplete="off">
-                        <div class="error-message" id="codeMatchError">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            Safety codes do not match
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn" id="regSubmitBtn" style="margin-top: 8px;">
-                        Complete Registration
-                    </button>
-                </form>
-
-                <div class="security-footer">
+        <div class="card" id="verificationForm">
+            <div class="card-header">
+                <div class="badge">
                     <span>🛡️</span>
-                    <span>Secured by Mobile Objex • Session-based isolation</span>
+                    <span>Anti-Phishing Demo</span>
                 </div>
+                <h1>Experience Verified Messaging</h1>
+                <p>Register your mobile number to receive a verified secure message with your personal <strong>VzW Safety Key</strong>.</p>
             </div>
 
-            <div class="card hidden" id="registerSuccess" style="text-align: center; max-width: 480px;">
-                <div class="success-icon">✅</div>
-                <h2 style="color: var(--primary-yellow); margin-bottom: 16px; font-size: 28px;">Registration Complete</h2>
-                <p style="margin-bottom: 24px; opacity: 0.9; line-height: 1.6;">Your information has been securely stored. You will receive a confirmation SMS shortly.</p>
-                
-                <div class="preview-box">
-                    <div class="preview-header">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: inline; vertical-align: middle; margin-right: 4px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
-                        Confirmation SMS Preview
-                    </div>
-                    <div style="line-height: 1.6;">
-                        <span class="safety-highlight" id="successCodeDisplay">##CODE##</span> 
-                        Thank you for registering with Mobile Objex. Your secure messaging is now active.
-                    </div>
-                </div>
-
-                <div style="background: rgba(244,185,66,0.08); border: 1px solid rgba(244, 185, 66, 0.2); padding: 16px; border-radius: 12px; margin: 24px 0; text-align: left; font-size: 14px;">
-                    <strong style="color: var(--primary-yellow); display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                        Didn't receive the message?
-                    </strong>
-                    <span style="opacity: 0.8; display: block; margin-left: 24px;">If you did not receive the text message, please check your spam folder.</span>
-                </div>
-
-                <div class="security-footer" style="border-top: none; margin-top: 0;">
-                    <span>🔒</span>
-                    <span>Session secured • Data encrypted</span>
-                </div>
+            <div class="error-message" id="errorMsg">
+                <span>⚠️</span>
+                <span id="errorText">Something went wrong. Please try again.</span>
             </div>
 
-            <div class="card hidden invalid-session" id="invalidSession" style="max-width: 480px;">
-                <div style="font-size: 64px; margin-bottom: 24px; filter: drop-shadow(0 0 20px rgba(255, 69, 58, 0.3));">⚠️</div>
-                <h2 style="color: var(--error-red); margin-bottom: 16px; font-size: 28px;">Invalid Link</h2>
-                <p style="margin-bottom: 24px; opacity: 0.8; line-height: 1.6;">This registration link is invalid or has expired. Please request a new secure link from your Mobile Objex representative.</p>
-                <button onclick="router.navigate('login')" class="btn" style="max-width: 200px; margin: 0 auto;">
-                    Return to Login
+            <form id="secureForm" onsubmit="handleSecureSubmit(event)">
+                <div class="form-group">
+                    <label class="form-label">Mobile Number *</label>
+                    <input type="tel" class="form-input" id="phone" placeholder="(555) 000-0000" required maxlength="14" inputmode="numeric" autocomplete="tel">
+                    <span class="hint">Enter your US mobile number</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Your Safety Code *</label>
+                    <div class="prefix-hint">Will be automatically prefixed with: <strong>VzW</strong></div>
+                    <input type="text" class="form-input" id="safetyCode" placeholder="e.g., York123" required minlength="4" maxlength="6" autocomplete="off">
+                    <span class="hint">4-6 characters (Final code: VzW<span id="livePreview"></span>)</span>
+                </div>
+
+                <button type="submit" class="btn" id="submitBtn">
+                    <span class="spinner"></span>
+                    <span class="btn-text">📱 Send Verified Message</span>
                 </button>
+            </form>
+
+            <div class="security-footer">
+                <span>🛡️</span>
+                <span>End-to-end encrypted • Verizon Secure Network</span>
+            </div>
+        </div>
+
+        <div class="card success-state" id="successState">
+            <div class="success-icon">✅</div>
+            <h2>Message Sent Successfully</h2>
+            <p>Check your phone! You've received a verified message demonstrating how Verizon authenticates legitimate business communications.</p>
+            
+            <div class="code-display" id="fullCodeDisplay">##VzWXXXX##</div>
+            
+            <div class="spam-notice" style="background: rgba(205, 4, 11, 0.05); border: 1px solid var(--border-dark); border-radius: 12px; padding: 16px; margin: 20px 0; text-align: left;">
+                <div style="display: flex; align-items: flex-start; gap: 12px;">
+                    <span style="font-size: 20px;">📧</span>
+                    <div>
+                        <strong style="color: var(--vz-red); font-size: 13px; text-transform: uppercase;">Didn't receive it?</strong>
+                        <p style="margin: 4px 0 0 0; font-size: 13px; opacity: 0.8; line-height: 1.4;">Check spam/junk folders. SMS delivery may take 30-60 seconds.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="phone-preview">
+                <div class="phone-header">
+                    <span>📱</span>
+                    <span>VERIFIED MESSAGE PREVIEW</span>
+                </div>
+                <div class="phone-screen" id="messagePreview">
+                    <span class="safety-prefix" id="previewCode">##VzWXXXX##</span> 
+                    This is how verified messages from Verizon appear. The VzW Safety Key prefix authenticates legitimate communications and prevents phishing attempts.
+                </div>
+            </div>
+
+            <div class="meeting-cta">
+                <h3>Enterprise Security Solutions</h3>
+                <p>See how Verizon can protect your organization's customer communications.</p>
+                <a href="https://www.verizon.com/business/products/security/" target="_blank" class="calendly-link">Learn More →</a>
+            </div>
+
+            <button class="btn btn-secondary" onclick="resetForm()" style="margin-top: 20px;">
+                Send Another Message
+            </button>
+
+            <div class="security-footer">
+                <span>🔒</span>
+                <span>Delivered securely via Verizon Network</span>
             </div>
         </div>
     </div>
 
-    <!-- PAGE 3: Dashboard -->
-    <div id="page-dashboard" class="page-container">
-        <div class="container">
-            <div class="page-header">
-                <h1>📤 Message Center</h1>
-                <p>Secure Messaging Dashboard - Manage recipients and send verified messages</p>
-            </div>
+<script>
+  // ==========================================
+  // CONFIGURATION - UPDATE THIS URL
+  // ==========================================
+  // Replace with your Cloudflare Worker URL (e.g., https://your-worker.your-subdomain.workers.dev)
+  const WORKER_URL = 'https://mobile-objex-api.roshanpatwari25.workers.dev';
+  
+  function normalizeUSPhoneToE164(raw) {
+    const digits = String(raw || "").replace(/\D/g, "");
+    if (digits.length === 10) return "+1" + digits;
+    if (digits.length === 11 && digits.startsWith("1")) return "+" + digits;
+    if (String(raw).trim().startsWith("+") && digits.length >= 10) return "+" + digits;
+    return null;
+  }
 
-            <div class="tabs">
-                <button class="tab active" onclick="switchTab('users')" id="tab-users">Users</button>
-                <button class="tab" onclick="switchTab('campaign')" id="tab-campaign">Campaign</button>
-            </div>
+  // Live preview of the safety code
+  document.getElementById('safetyCode').addEventListener('input', function(e) {
+    const val = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+    e.target.value = val;
+    document.getElementById('livePreview').textContent = val;
+  });
 
-            <div id="content-users" class="tab-content active">
-                <div class="card" style="max-width: 100%;">
-                    <div class="section-header">
-                        <div style="display: flex; align-items: center; gap: 16px;">
-                            <div style="width: 56px; height: 56px; background: rgba(244,185,66,0.1); border: 1px solid rgba(244, 185, 66, 0.2); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 0 20px rgba(244, 185, 66, 0.1);">👥</div>
-                            <div>
-                                <h2 style="font-size: 24px; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 4px;">Registered Users</h2>
-                                <p style="opacity: 0.6; font-size: 14px; font-weight: 500;" id="usersCount">Loading users...</p>
-                            </div>
-                        </div>
-                        <button class="refresh-btn" onclick="refreshRecipients()" id="refreshBtn">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                            </svg>
-                            Refresh
-                        </button>
-                    </div>
+  // Phone formatting
+  document.getElementById('phone').addEventListener('input', function (e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 0) {
+      if (value.length <= 3) value = '(' + value;
+      else if (value.length <= 6) value = '(' + value.slice(0, 3) + ') ' + value.slice(3);
+      else value = '(' + value.slice(0, 3) + ') ' + value.slice(3, 6) + '-' + value.slice(6, 10);
+    }
+    e.target.value = value;
+  });
 
-                    <h3 style="font-size: 12px; color: var(--primary-yellow); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Registration Link</h3>
-                    <div class="url-box">
-                        <span id="captureUrl" style="word-break: break-all; font-weight: 500;">Loading...</span>
-                        <button class="btn-copy" onclick="copyUrl()">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: inline; vertical-align: middle; margin-right: 4px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                            Copy Link
-                        </button>
-                    </div>
+  async function handleSecureSubmit(e) {
+    e.preventDefault();
 
-                    <div id="usersList" style="margin-top: 24px;">
-                        <div style="text-align: center; padding: 60px 20px; opacity: 0.5;">
-                            <div style="font-size: 56px; margin-bottom: 16px; filter: grayscale(1);">📭</div>
-                            <p style="font-size: 16px; font-weight: 500;">No users registered yet</p>
-                            <p style="font-size: 13px; margin-top: 8px; opacity: 0.7;">Share the secure link above to add users</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    const phoneRaw = document.getElementById("phone").value.trim();
+    const userCodeRaw = document.getElementById("safetyCode").value.trim();
+    
+    // Force VzW prefix and format as ##VzW[CODE]##
+    const userCode = userCodeRaw.replace(/#/g, '').toUpperCase();
+    const fullSafetyCode = `VzW${userCode}`;
+    const formattedSafetyCode = `##${fullSafetyCode}##`;
+    
+    const btn = document.getElementById("submitBtn");
+    const errorMsg = document.getElementById("errorMsg");
+    const errorText = document.getElementById("errorText");
 
-            <div id="content-campaign" class="tab-content">
-                <div class="content-grid">
-                    <div class="card" style="max-width: 100%;">
-                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 32px;">
-                            <div style="width: 56px; height: 56px; background: rgba(244,185,66,0.1); border: 1px solid rgba(244, 185, 66, 0.2); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 0 20px rgba(244, 185, 66, 0.1);">✉️</div>
-                            <div>
-                                <h2 style="font-size: 24px; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 4px;">Compose Message</h2>
-                                <p style="opacity: 0.6; font-size: 14px; font-weight: 500;">Messages will be prefixed with ##SafetyCode##</p>
-                            </div>
-                        </div>
+    // Reset error
+    errorMsg.classList.remove('show');
+    document.getElementById("phone").classList.remove('error');
+    document.getElementById("safetyCode").classList.remove('error');
 
-                        <div id="recipientsList" style="margin-bottom: 24px;">
-                            <div style="text-align: center; padding: 40px 20px; opacity: 0.5;">
-                                <div style="font-size: 48px; margin-bottom: 16px;">📭</div>
-                                <p>No recipients available</p>
-                                <p style="font-size: 13px; margin-top: 8px;">Register users first to enable messaging</p>
-                            </div>
-                        </div>
+    // Validation
+    const phone = normalizeUSPhoneToE164(phoneRaw);
+    if (!phone) {
+      errorText.textContent = "Please enter a valid US phone number (10 digits).";
+      errorMsg.classList.add('show');
+      document.getElementById("phone").classList.add('error');
+      document.getElementById("phone").focus();
+      return;
+    }
 
-                        <form id="sendForm" onsubmit="handleSend(event)">
-                            <div class="form-group">
-                                <label class="form-label" style="color: var(--primary-yellow);">Message Content *</label>
-                                <textarea class="form-input" id="messageContent" rows="4" placeholder="Enter your secure message here..." maxlength="1600" required style="resize: vertical; min-height: 120px;"></textarea>
-                                <div style="text-align: right; font-size: 12px; opacity: 0.5; margin-top: 6px; font-weight: 500;">
-                                    <span id="charCount">0</span> / 1600
-                                </div>
-                            </div>
+    if (userCode.length < 4 || userCode.length > 6) {
+      errorText.textContent = "Safety code must be 4-6 characters (letters/numbers only).";
+      errorMsg.classList.add('show');
+      document.getElementById("safetyCode").classList.add('error');
+      document.getElementById("safetyCode").focus();
+      return;
+    }
 
-                            <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(244, 185, 66, 0.2); padding: 16px; border-radius: 12px; margin-bottom: 24px; border-left: 3px solid var(--primary-yellow);">
-                                <div style="font-size: 11px; color: var(--primary-yellow); margin-bottom: 6px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Message Preview</div>
-                                <div id="messagePreview" style="font-family: 'SF Mono', Monaco, monospace; font-size: 13px; line-height: 1.5; color: rgba(255,255,255,0.8);">
-                                    <span class="safety-highlight">##[SafetyCode]##</span> Your message will appear here...
-                                </div>
-                            </div>
+    // UI Loading state
+    btn.classList.add("loading");
+    btn.disabled = true;
 
-                            <button type="submit" class="btn" id="sendBtn" disabled>
-                                <span>🚀</span> Send Secure Message
-                            </button>
-                        </form>
-                    </div>
+    const messageContent = "This is how verified messages from Verizon appear. The VzW Safety Key prefix authenticates legitimate business communications and stops phishing attempts before they reach consumers.";
 
-                    <div class="card" style="max-width: 100%;">
-                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 32px;">
-                            <div style="width: 56px; height: 56px; background: rgba(244,185,66,0.1); border: 1px solid rgba(244, 185, 66, 0.2); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 0 20px rgba(244, 185, 66, 0.1);">📨</div>
-                            <div>
-                                <h2 style="font-size: 24px; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 4px;">Message History</h2>
-                                <p style="opacity: 0.6; font-size: 14px; font-weight: 500;" id="historyCount">No messages sent</p>
-                            </div>
-                        </div>
+    try {
+      // Call Cloudflare Worker instead of Firebase/Textbelt directly
+      const response = await fetch(`${WORKER_URL}/api/send-sms`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          phone: phone,
+          message: messageContent,
+          safetyCode: fullSafetyCode  // Worker will format as ##VzW[CODE]##
+        })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Server error: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.error || 'SMS delivery failed');
+      }
+      
+      // Show success
+      document.getElementById("verificationForm").style.display = "none";
+      document.getElementById("successState").classList.add("show");
+      document.getElementById("previewCode").textContent = formattedSafetyCode;
+      document.getElementById("fullCodeDisplay").textContent = formattedSafetyCode;
+      
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
 
-                        <div id="messageHistory" style="max-height: 600px; overflow-y: auto; padding-right: 8px;">
-                            <div style="text-align: center; padding: 60px 20px; opacity: 0.5;">
-                                <div style="font-size: 56px; margin-bottom: 16px;">📤</div>
-                                <p style="font-size: 16px; font-weight: 500;">No messages sent yet</p>
-                                <p style="font-size: 13px; margin-top: 8px; opacity: 0.7;">Your sent messages will appear here</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    } catch (err) {
+      console.error("SMS ERROR:", err);
+      errorText.textContent = err.message || "Failed to send SMS. Please check your internet connection and try again.";
+      errorMsg.classList.add('show');
+      
+      btn.classList.remove("loading");
+      btn.disabled = false;
+    }
+  }
 
-    <!-- Modals -->
-    <div class="modal-overlay" id="securityModal">
-        <div class="modal">
-            <div style="font-size: 56px; margin-bottom: 20px; filter: drop-shadow(0 0 20px rgba(244, 185, 66, 0.3));">🔒</div>
-            <h2 style="margin-bottom: 12px; font-size: 24px; font-weight: 700;">Confirm Sending</h2>
-            <p style="margin-bottom: 20px; opacity: 0.8; font-size: 15px; line-height: 1.5;">
-                You are about to send messages with safety codes to <span id="confirmCount" style="color: var(--primary-yellow); font-weight: 700; font-size: 18px;"></span> recipient(s).
-            </p>
-            <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(244, 185, 66, 0.2); padding: 16px; border-radius: 12px; margin-bottom: 28px; text-align: left; font-family: 'SF Mono', Monaco, monospace; font-size: 13px; border-left: 3px solid var(--primary-yellow); line-height: 1.5; max-height: 150px; overflow-y: auto;">
-                <span class="safety-highlight">##[SafetyCode]##</span> <span id="confirmMessage" style="color: rgba(255,255,255,0.8);"></span>
-            </div>
-            <div style="display: flex; gap: 12px;">
-                <button class="btn" onclick="confirmSend()" style="flex: 1;">Confirm Send</button>
-                <button class="btn" onclick="closeSecurityModal()" style="flex: 1; background: transparent; border: 2px solid rgba(244, 185, 66, 0.3); color: var(--text-dark);">
-                    Cancel
-                </button>
-            </div>
-        </div>
-    </div>
+  function resetForm() {
+    document.getElementById('secureForm').reset();
+    document.getElementById('verificationForm').style.display = 'block';
+    document.getElementById('successState').classList.remove('show');
+    document.getElementById('submitBtn').classList.remove('loading');
+    document.getElementById('submitBtn').disabled = false;
+    document.getElementById('errorMsg').classList.remove('show');
+    document.getElementById('livePreview').textContent = '';
+  }
 
-    <div class="modal-overlay" id="logoutModal">
-        <div class="modal">
-            <div style="font-size: 56px; margin-bottom: 20px;">🚪</div>
-            <h2 style="margin-bottom: 12px; font-size: 24px; font-weight: 700;">Confirm Logout</h2>
-            <p style="margin-bottom: 28px; opacity: 0.8; font-size: 15px;">
-                Are you sure you want to logout? Your session will be terminated and all session data cleared.
-            </p>
-            <div style="display: flex; gap: 12px;">
-                <button class="btn" onclick="confirmLogout()" style="flex: 1; background: var(--error-red); box-shadow: 0 4px 15px rgba(255, 69, 58, 0.3);">Logout</button>
-                <button class="btn" onclick="closeLogoutModal()" style="flex: 1; background: transparent; border: 2px solid rgba(255, 255, 255, 0.2); color: var(--text-dark);">
-                    Cancel
-                </button>
-            </div>
-        </div>
-    </div>
+  function toggleTheme() {
+    const body = document.body;
+    const icon = document.getElementById('themeIcon');
+    const text = document.getElementById('themeText');
 
-    <div class="modal-overlay" id="expiredModal">
-        <div class="modal">
-            <div style="font-size: 64px; margin-bottom: 24px;">⏰</div>
-            <h2 style="color: var(--error-red); margin-bottom: 16px; font-size: 28px; font-weight: 700;">Session Expired</h2>
-            <p style="margin-bottom: 28px; opacity: 0.8; font-size: 15px; line-height: 1.5;">Your session has expired for security reasons. Please login again.</p>
-            <button class="btn" onclick="logout()">Return to Login</button>
-        </div>
-    </div>
+    body.classList.toggle('light-mode');
 
-    <!-- Toast Notification -->
-    <div id="toast" class="toast">
-        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-        <span id="toastMessage">Operation successful</span>
-    </div>
+    if (body.classList.contains('light-mode')) {
+      icon.textContent = '☀️';
+      text.textContent = 'Light';
+      localStorage.setItem('theme', 'light');
+    } else {
+      icon.textContent = '🌙';
+      text.textContent = 'Dark';
+      localStorage.setItem('theme', 'dark');
+    }
+  }
 
-    <script>
-        // Performance: Optimize particles
-        const particleContainer = document.getElementById('particles');
-        for (let i = 0; i < 8; i++) {
-            const p = document.createElement('div');
-            p.className = 'particle';
-            p.style.left = Math.random() * 100 + '%';
-            p.style.animationDelay = Math.random() * 20 + 's';
-            p.style.animationDuration = (15 + Math.random() * 10) + 's';
-            particleContainer.appendChild(p);
-        }
+  // Init theme
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'light') {
+    document.body.classList.add('light-mode');
+    document.getElementById('themeIcon').textContent = '☀️';
+    document.getElementById('themeText').textContent = 'Light';
+  }
 
-        // CONFIGURATION
-        const API_URL = 'https://mobile-objex-api.roshanpatwari25.workers.dev';
-        
-        // State
-        let sessionToken = localStorage.getItem('mo_session');
-        let sessionExpiry = null;
-        let timerInterval = null;
-        let recipients = []; // Now fetched from backend, not localStorage
-        let messages = JSON.parse(localStorage.getItem('mo_messages') || '[]');
-        let pendingSend = null;
-
-        // Router
-        const router = {
-            navigate: function(page) {
-                document.querySelectorAll('.page-container').forEach(el => {
-                    el.classList.remove('active');
-                    setTimeout(() => {
-                        if (!el.classList.contains('active')) el.style.display = 'none';
-                    }, 400);
-                });
-                
-                const target = document.getElementById(`page-${page}`);
-                if (target) {
-                    target.style.display = 'block';
-                    setTimeout(() => target.classList.add('active'), 10);
-                }
-                
-                document.getElementById('mainNav').style.display = 'none';
-                document.getElementById('dashboardNav').style.display = 'none';
-                
-                // Update hash for navigation tracking (except register for security)
-                if (page !== 'register') {
-                    window.location.hash = page;
-                }
-                
-                switch(page) {
-                    case 'login':
-                        if (sessionToken) {
-                            this.navigate('dashboard');
-                            return;
-                        }
-                        document.getElementById('mainNav').style.display = 'flex';
-                        break;
-                    case 'register':
-                        this.showRegister();
-                        break;
-                    case 'dashboard':
-                        if (!sessionToken) {
-                            this.navigate('login');
-                            return;
-                        }
-                        document.getElementById('dashboardNav').style.display = 'flex';
-                        initDashboard();
-                        break;
-                    default:
-                        this.navigate('login');
-                }
-            },
-
-            showRegister: function() {
-                const params = new URLSearchParams(window.location.search);
-                const token = params.get('token') || params.get('s');
-                
-                const target = document.getElementById('page-register');
-                target.style.display = 'block';
-                setTimeout(() => target.classList.add('active'), 10);
-                document.getElementById('mainNav').style.display = 'flex';
-                
-                if (!token || (!token.startsWith('sess_') && !token.startsWith('mo_sess_'))) {
-                    document.getElementById('registerForm').classList.add('hidden');
-                    document.getElementById('registerSuccess').classList.add('hidden');
-                    document.getElementById('invalidSession').classList.remove('hidden');
-                    return;
-                }
-                
-                window.registrationSessionId = token;
-                document.getElementById('registerForm').classList.remove('hidden');
-                document.getElementById('registerSuccess').classList.add('hidden');
-                document.getElementById('invalidSession').classList.add('hidden');
-                document.getElementById('captureForm').reset();
-                document.querySelectorAll('.error-message').forEach(e => e.classList.remove('show'));
-                document.querySelectorAll('.form-input').forEach(e => e.classList.remove('error'));
-            }
-        };
-
-        // Phone formatting with debounce
-        function setupPhoneFormatting() {
-            const phoneInputs = document.querySelectorAll('input[type="tel"]');
-            phoneInputs.forEach(input => {
-                input.addEventListener('input', debounce(function(e) {
-                    let value = e.target.value.replace(/\D/g, "");
-                    if (value.length > 0) {
-                        if (value.length <= 3) value = "(" + value;
-                        else if (value.length <= 6) value = "(" + value.slice(0, 3) + ") " + value.slice(3);
-                        else value = "(" + value.slice(0, 3) + ") " + value.slice(3, 6) + "-" + value.slice(6, 10);
-                    }
-                    e.target.value = value;
-                }, 16));
-            });
-        }
-
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
-
-        // Toast notification
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            document.getElementById('toastMessage').textContent = message;
-            toast.className = 'toast show ' + type;
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-        }
-
-        // Theme toggle
-        function toggleTheme() {
-            const isLight = document.body.classList.toggle('light-mode');
-            const icon = isLight ? '☀️' : '🌙';
-            const text = isLight ? 'Light' : 'Dark';
-            document.querySelectorAll('.theme-icon').forEach(el => el.textContent = icon);
-            document.querySelectorAll('#themeText, #themeText2').forEach(el => el.textContent = text);
-            localStorage.setItem('theme', isLight ? 'light' : 'dark');
-        }
-
-        // Auth functions
-        function loginWithGitHub() {
-            window.location.href = `${API_URL}/auth/login`;
-        }
-
-        async function handleLogin(e) {
-            e.preventDefault();
-            const btn = document.getElementById('loginBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="skeleton" style="width: 20px; height: 20px; display: inline-block; border-radius: 50%;"></span> Logging in...';
-            
-            try {
-                const response = await fetch(`${API_URL}/api/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        username: document.getElementById('loginUsername').value.trim(),
-                        password: document.getElementById('loginPassword').value
-                    })
-                });
-                
-                const data = await response.json();
-                if (data.success && data.token) {
-                    sessionToken = data.token;
-                    localStorage.setItem('mo_session', data.token);
-                    if (data.user) localStorage.setItem('mo_user', JSON.stringify(data.user));
-                    showToast('Login successful!');
-                    setTimeout(() => router.navigate('dashboard'), 500);
-                } else {
-                    throw new Error(data.error || 'Invalid credentials');
-                }
-            } catch (error) {
-                showToast('Login failed: ' + error.message, 'error');
-                btn.disabled = false;
-                btn.innerHTML = `<svg class="arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg> Login`;
-            }
-        }
-
-        function showLogoutConfirm() {
-            document.getElementById('logoutModal').classList.add('show');
-        }
-
-        function closeLogoutModal() {
-            document.getElementById('logoutModal').classList.remove('show');
-        }
-
-        function confirmLogout() {
-            closeLogoutModal();
-            performLogout();
-        }
-
-        function performLogout() {
-            sessionToken = null;
-            localStorage.removeItem('mo_session');
-            localStorage.removeItem('mo_user');
-            // Clear recipients from memory
-            recipients = [];
-            clearInterval(timerInterval);
-            window.location.href = window.location.pathname;
-        }
-
-        function logout() {
-            performLogout();
-        }
-
-        async function handleRegister(e) {
-            e.preventDefault();
-            const phone = document.getElementById('regPhone').value.trim();
-            const phoneConfirm = document.getElementById('regPhoneConfirm').value.trim();
-            const safetyCode = document.getElementById('regSafetyCode').value.trim();
-            const safetyCodeConfirm = document.getElementById('regSafetyCodeConfirm').value.trim();
-            
-            document.querySelectorAll('.error-message').forEach(e => e.classList.remove('show'));
-            document.querySelectorAll('.form-input').forEach(e => e.classList.remove('error'));
-            
-            let hasError = false;
-            
-            if (phone !== phoneConfirm) {
-                document.getElementById('regPhone').classList.add('error');
-                document.getElementById('regPhoneConfirm').classList.add('error');
-                document.getElementById('phoneMatchError').classList.add('show');
-                hasError = true;
-            }
-            
-            if (safetyCode !== safetyCodeConfirm) {
-                document.getElementById('regSafetyCode').classList.add('error');
-                document.getElementById('regSafetyCodeConfirm').classList.add('error');
-                document.getElementById('codeMatchError').classList.add('show');
-                hasError = true;
-            }
-            
-            if (hasError) return;
-            
-            const btn = document.getElementById('regSubmitBtn');
-            btn.disabled = true;
-            btn.textContent = 'Registering...';
-            
-            try {
-                const response = await fetch(`${API_URL}/api/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        phone: phone,
-                        safetyCode: safetyCode,
-                        sessionId: window.registrationSessionId
-                    })
-                });
-                
-                const data = await response.json();
-                if (data.success) {
-                    document.getElementById('registerForm').classList.add('hidden');
-                    document.getElementById('registerSuccess').classList.remove('hidden');
-                    document.getElementById('successCodeDisplay').textContent = `##${safetyCode}##`;
-                    showToast('Registration successful!');
-                    
-                    // Send confirmation SMS
-                    await fetch(`${API_URL}/api/send-sms`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            phone: phone,
-                            safetyCode: safetyCode,
-                            message: 'Thank you for registering with Mobile Objex. Your secure messaging is now active.'
-                        })
-                    });
-                } else {
-                    throw new Error(data.error || 'Registration failed');
-                }
-            } catch (error) {
-                showToast(error.message, 'error');
-                btn.disabled = false;
-                btn.textContent = 'Complete Registration';
-            }
-        }
-
-        // Fetch recipients from backend
-        async function fetchRecipients() {
-            if (!sessionToken) return;
-            
-            try {
-                const response = await fetch(`${API_URL}/api/registrations?sessionId=${sessionToken}`);
-                const data = await response.json();
-                
-                if (data.success) {
-                    recipients = data.recipients || [];
-                    updateRecipientsUI();
-                } else {
-                    throw new Error(data.error || 'Failed to fetch users');
-                }
-            } catch (error) {
-                console.error('Failed to fetch recipients:', error);
-                showToast('Failed to load users. Please refresh.', 'error');
-            }
-        }
-
-        // Refresh button handler
-        async function refreshRecipients() {
-            const btn = document.getElementById('refreshBtn');
-            btn.classList.add('spinning');
-            btn.disabled = true;
-            
-            await fetchRecipients();
-            
-            setTimeout(() => {
-                btn.classList.remove('spinning');
-                btn.disabled = false;
-                showToast('User list updated');
-            }, 500);
-        }
-
-        async function initDashboard() {
-            sessionExpiry = Date.now() + (30 * 60 * 1000);
-            startTimer();
-            
-            const userData = localStorage.getItem('mo_user');
-            if (userData) {
-                const user = JSON.parse(userData);
-                document.getElementById('usernameDisplay').textContent = user.name || user.login || user.username || 'User';
-            }
-            
-            const baseUrl = window.location.origin + window.location.pathname;
-            const url = `${baseUrl}?view=register&token=${sessionToken}`;
-            document.getElementById('captureUrl').textContent = url;
-            
-            // Fetch recipients from backend instead of localStorage
-            await fetchRecipients();
-            
-            // Setup message preview
-            const msgContent = document.getElementById('messageContent');
-            if (msgContent) {
-                msgContent.addEventListener('input', debounce(function() {
-                    const text = this.value;
-                    document.getElementById('charCount').textContent = text.length;
-                    document.getElementById('messagePreview').innerHTML = 
-                        `<span class="safety-highlight">##[SafetyCode]##</span> ${text || 'Your message will appear here...'}`;
-                }, 100));
-            }
-        }
-
-        function startTimer() {
-            updateTimer();
-            timerInterval = setInterval(updateTimer, 1000);
-        }
-
-        function updateTimer() {
-            const remaining = sessionExpiry - Date.now();
-            if (remaining <= 0) {
-                clearInterval(timerInterval);
-                document.getElementById('expiredModal').classList.add('show');
-                return;
-            }
-            const mins = Math.floor(remaining / 60000);
-            const secs = Math.floor((remaining % 60000) / 1000);
-            const display = document.getElementById('timerDisplay');
-            display.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-            
-            if (mins < 5) display.classList.add('timer-low');
-            else display.classList.remove('timer-low');
-        }
-
-        function copyUrl() {
-            const url = document.getElementById('captureUrl').textContent;
-            navigator.clipboard.writeText(url).then(() => {
-                showToast('Link copied to clipboard!');
-                const btn = document.querySelector('.btn-copy');
-                const original = btn.innerHTML;
-                btn.innerHTML = '<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Copied!';
-                setTimeout(() => btn.innerHTML = original, 2000);
-            });
-        }
-
-        function updateRecipientsUI() {
-            const list = document.getElementById('usersList');
-            const recList = document.getElementById('recipientsList');
-            const count = document.getElementById('usersCount');
-            
-            if (recipients.length === 0) {
-                count.textContent = 'No users registered';
-                document.getElementById('sendBtn').disabled = true;
-                
-                const emptyState = `
-                    <div style="text-align: center; padding: 60px 20px; opacity: 0.5;">
-                        <div style="font-size: 56px; margin-bottom: 16px; filter: grayscale(1);">📭</div>
-                        <p style="font-size: 16px; font-weight: 500;">No users registered yet</p>
-                        <p style="font-size: 13px; margin-top: 8px; opacity: 0.7;">Share the secure link above to add users</p>
-                    </div>
-                `;
-                
-                list.innerHTML = emptyState;
-                recList.innerHTML = `
-                    <div style="text-align: center; padding: 40px 20px; opacity: 0.5;">
-                        <div style="font-size: 48px; margin-bottom: 16px;">📭</div>
-                        <p>No recipients available</p>
-                        <p style="font-size: 13px; margin-top: 8px;">Register users first to enable messaging</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            count.textContent = `${recipients.length} user${recipients.length !== 1 ? 's' : ''} registered`;
-            document.getElementById('sendBtn').disabled = false;
-            
-            // Users tab list (read-only view)
-            const usersHtml = recipients.map((r, i) => `
-                <div class="user-item">
-                    <div class="user-info">
-                        <div class="user-phone">${r.phone}</div>
-                        <div class="user-code">##${r.safetyCode}##</div>
-                        <div class="user-time">Registered: ${new Date(r.registeredAt).toLocaleString()}</div>
-                    </div>
-                </div>
-            `).join('');
-            
-            // Campaign tab list (with checkboxes for selection)
-            const recipientsHtml = recipients.map((r, i) => `
-                <div class="user-item" style="cursor: pointer;" onclick="this.querySelector('input').click()">
-                    <div class="user-info">
-                        <div class="user-phone">${r.phone}</div>
-                        <div class="user-code">##${r.safetyCode}##</div>
-                    </div>
-                    <input type="checkbox" class="recipient-checkbox" checked data-index="${i}" onclick="event.stopPropagation()">
-                </div>
-            `).join('');
-            
-            list.innerHTML = `<div style="margin-top: 24px;">${usersHtml}</div>`;
-            recList.innerHTML = recipientsHtml;
-        }
-
-        function handleSend(e) {
-            e.preventDefault();
-            const message = document.getElementById('messageContent').value.trim();
-            if (!message) return showToast('Please enter a message', 'error');
-            
-            const checkboxes = document.querySelectorAll('#recipientsList input[type="checkbox"]:checked');
-            if (checkboxes.length === 0) return showToast('Please select at least one recipient', 'error');
-            
-            pendingSend = {
-                recipients: Array.from(checkboxes).map(cb => recipients[cb.dataset.index]),
-                message: message
-            };
-            
-            document.getElementById('confirmCount').textContent = pendingSend.recipients.length;
-            document.getElementById('confirmMessage').textContent = message;
-            document.getElementById('securityModal').classList.add('show');
-        }
-
-        function closeSecurityModal() {
-            document.getElementById('securityModal').classList.remove('show');
-            pendingSend = null;
-        }
-
-        async function confirmSend() {
-            if (!pendingSend) return;
-            document.getElementById('securityModal').classList.remove('show');
-            
-            const btn = document.getElementById('sendBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="skeleton" style="width: 16px; height: 16px; display: inline-block; border-radius: 50%; margin-right: 8px;"></span> Sending...';
-            
-            for (const recipient of pendingSend.recipients) {
-                try {
-                    await fetch(`${API_URL}/api/send-sms`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            phone: recipient.phone,
-                            safetyCode: recipient.safetyCode,
-                            message: pendingSend.message
-                        })
-                    });
-                    
-                    messages.unshift({
-                        recipient: recipient.phone,
-                        code: recipient.safetyCode,
-                        message: pendingSend.message,
-                        time: new Date().toLocaleTimeString()
-                    });
-                } catch (e) {
-                    console.error(e);
-                }
-                await new Promise(r => setTimeout(r, 1100));
-            }
-            
-            localStorage.setItem('mo_messages', JSON.stringify(messages));
-            updateHistory();
-            
-            btn.disabled = false;
-            btn.innerHTML = '<span>🚀</span> Send Secure Message';
-            document.getElementById('messageContent').value = '';
-            document.getElementById('charCount').textContent = '0';
-            document.getElementById('messagePreview').innerHTML = '<span class="safety-highlight">##[SafetyCode]##</span> Your message will appear here...';
-            
-            showToast(`Sent to ${pendingSend.recipients.length} recipient(s)`);
-            pendingSend = null;
-        }
-
-        function updateHistory() {
-            const history = document.getElementById('messageHistory');
-            const count = document.getElementById('historyCount');
-            
-            if (messages.length === 0) return;
-            
-            count.textContent = `${messages.length} message${messages.length !== 1 ? 's' : ''} sent`;
-            history.innerHTML = messages.map(m => `
-                <div style="background: rgba(244,185,66,0.05); border: 1px solid rgba(244, 185, 66, 0.15); padding: 16px; border-radius: 12px; margin-bottom: 12px; animation: slideIn 0.3s ease;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; align-items: center;">
-                        <strong style="font-size: 15px;">${m.recipient}</strong>
-                        <span style="color: var(--success-green); font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
-                            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Sent
-                        </span>
-                    </div>
-                    <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; font-family: 'SF Mono', Monaco, monospace; font-size: 13px; border-left: 3px solid var(--primary-yellow); line-height: 1.5;">
-                        <span class="safety-highlight">##${m.code}##</span> ${m.message}
-                    </div>
-                    <div style="margin-top: 8px; font-size: 12px; opacity: 0.5; font-weight: 500;">${m.time}</div>
-                </div>
-            `).join('');
-        }
-
-        function switchTab(tab) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.getElementById(`tab-${tab}`).classList.add('active');
-            document.getElementById(`content-${tab}`).classList.add('active');
-            
-            // If switching to campaign, refresh recipients to ensure latest data
-            if (tab === 'campaign' && sessionToken) {
-                fetchRecipients();
-            }
-        }
-
-        // Initialize
-        window.addEventListener('DOMContentLoaded', () => {
-            setupPhoneFormatting();
-            
-            const params = new URLSearchParams(window.location.search);
-            const view = params.get('view');
-            const token = params.get('token');
-            
-            if (view === 'register' || (token && !sessionToken)) {
-                // Public registration link
-                router.navigate('register');
-            } else if (token && sessionToken) {
-                // GitHub callback with token
-                localStorage.setItem('mo_session', token);
-                sessionToken = token;
-                window.history.replaceState({}, '', window.location.pathname + '#dashboard');
-                router.navigate('dashboard');
-            } else {
-                // Default: Start with login (no home page)
-                const hash = window.location.hash.replace('#', '') || 'login';
-                router.navigate(hash);
-            }
-            
-            if (localStorage.getItem('theme') === 'light') toggleTheme();
-            updateHistory();
-        });
-
-        window.addEventListener('hashchange', () => {
-            const params = new URLSearchParams(window.location.search);
-            if (params.get('view') === 'register') return;
-            const hash = window.location.hash.replace('#', '');
-            if (hash && !hash.includes('?')) router.navigate(hash);
-        });
-    </script>
+  // Expose to window
+  window.handleSecureSubmit = handleSecureSubmit;
+  window.resetForm = resetForm;
+  window.toggleTheme = toggleTheme;
+</script>
 </body>
 </html>
