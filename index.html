@@ -3,27 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Verizon Secure Messaging | Verified Communications</title>
+    <title>Mobile Objex | Secure Verification</title>
     <style>
         :root {
-            --vz-red: #cd040b;
-            --vz-red-hover: #a50309;
-            --vz-red-glow: rgba(205, 4, 11, 0.4);
+            --primary-yellow: #F4B942;
+            --primary-yellow-hover: #E5AA33;
+            --primary-glow: rgba(244, 185, 66, 0.6);
             --bg-dark: #0a0a0f;
             --bg-light: #f5f5f7;
             --card-dark: rgba(20, 20, 30, 0.85);
             --card-light: rgba(255, 255, 255, 0.95);
             --text-dark: #ffffff;
             --text-light: #1a1a1f;
-            --accent-glow: rgba(205, 4, 11, 0.3);
-            --border-dark: rgba(205, 4, 11, 0.3);
+            --accent-glow: rgba(244, 185, 66, 0.4);
+            --border-dark: rgba(244, 185, 66, 0.3);
             --border-light: rgba(0, 0, 0, 0.1);
             --input-bg-dark: rgba(10, 10, 15, 0.6);
             --input-bg-light: rgba(245, 245, 247, 0.8);
             --success-green: #34c759;
             --error-red: #ff3b30;
-            --vz-black: #000000;
-            --vz-white: #ffffff;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -48,8 +46,8 @@
         .bg-grid {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-image: 
-                linear-gradient(rgba(205, 4, 11, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(205, 4, 11, 0.03) 1px, transparent 1px);
+                linear-gradient(rgba(244, 185, 66, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(244, 185, 66, 0.03) 1px, transparent 1px);
             background-size: 50px 50px;
             pointer-events: none; z-index: 0;
             animation: gridMove 20s linear infinite;
@@ -62,20 +60,20 @@
 
         body.light-mode .bg-grid {
             background-image: 
-                linear-gradient(rgba(205, 4, 11, 0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(205, 4, 11, 0.02) 1px, transparent 1px);
+                linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
         }
 
         .orb {
             position: fixed; border-radius: 50%;
-            filter: blur(80px); opacity: 0.15; z-index: 0;
+            filter: blur(80px); opacity: 0.3; z-index: 0;
             animation: orb-pulse 8s ease-in-out infinite;
         }
 
-        .orb-1 { width: 400px; height: 400px; background: radial-gradient(circle, var(--vz-red) 0%, transparent 70%); top: -100px; right: -100px; animation-delay: 0s; }
-        .orb-2 { width: 300px; height: 300px; background: radial-gradient(circle, var(--vz-red) 0%, transparent 70%); bottom: -50px; left: -50px; animation-delay: 4s; }
+        .orb-1 { width: 400px; height: 400px; background: radial-gradient(circle, var(--primary-yellow) 0%, transparent 70%); top: -100px; right: -100px; animation-delay: 0s; }
+        .orb-2 { width: 300px; height: 300px; background: radial-gradient(circle, var(--primary-yellow) 0%, transparent 70%); bottom: -50px; left: -50px; animation-delay: 4s; }
 
-        @keyframes orb-pulse { 0%, 100% { transform: scale(1); opacity: 0.15; } 50% { transform: scale(1.2); opacity: 0.25; } }
+        @keyframes orb-pulse { 0%, 100% { transform: scale(1); opacity: 0.3; } 50% { transform: scale(1.2); opacity: 0.5; } }
 
         .theme-toggle {
             position: fixed; top: 20px; right: 20px; z-index: 1000;
@@ -88,7 +86,7 @@
         }
 
         body.light-mode .theme-toggle { background: var(--card-light); border-color: var(--border-light); color: var(--text-light); }
-        .theme-toggle:hover { transform: scale(1.05) translateY(-2px); box-shadow: 0 0 30px var(--accent-glow); border-color: var(--vz-red); }
+        .theme-toggle:hover { transform: scale(1.05) translateY(-2px); box-shadow: 0 0 30px var(--accent-glow); border-color: var(--primary-yellow); }
 
         .container { position: relative; z-index: 10; width: 100%; max-width: 480px; animation: slideUp 0.6s ease-out; }
 
@@ -97,35 +95,27 @@
         .logo-container { text-align: center; margin-bottom: 30px; }
 
         .logo-icon {
-            width: 70px; height: 70px; background: linear-gradient(135deg, var(--vz-red) 0%, #ff1a1a 100%);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 15px; box-shadow: 0 4px 20px rgba(205, 4, 11, 0.4);
+            width: 60px; height: 60px; background: linear-gradient(135deg, #F4B942 0%, #FFD700 100%);
+            border-radius: 16px; display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 15px; box-shadow: 0 4px 20px rgba(244, 185, 66, 0.4);
             animation: logo-glow 3s infinite ease-in-out;
-            border: 3px solid rgba(255, 255, 255, 0.1);
         }
 
-        @keyframes logo-glow { 0%, 100% { box-shadow: 0 4px 20px rgba(205, 4, 11, 0.4); } 50% { box-shadow: 0 4px 30px rgba(205, 4, 11, 0.6), 0 0 40px rgba(205, 4, 11, 0.2); } }
+        @keyframes logo-glow { 0%, 100% { box-shadow: 0 4px 20px rgba(244, 185, 66, 0.4); } 50% { box-shadow: 0 4px 30px rgba(244, 185, 66, 0.6), 0 0 40px rgba(244, 185, 66, 0.3); } }
 
-        .vz-logo-inner {
-            color: white;
-            font-size: 28px;
-            font-weight: 900;
-            font-style: italic;
-            letter-spacing: -1px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
+        .shield { width: 30px; height: 36px; background: #0a0a0f; clip-path: polygon(50% 0%, 100% 25%, 100% 65%, 50% 100%, 0% 65%, 0% 25%); }
 
-        .logo-text { font-size: 26px; font-weight: 800; color: var(--text-dark); letter-spacing: -0.5px; }
-        .logo-text span { color: var(--vz-red); font-weight: 900; }
+        .logo-text { font-size: 24px; font-weight: 800; color: var(--text-dark); }
+        .logo-text span { color: var(--primary-yellow); }
         body.light-mode .logo-text { color: var(--text-light); }
 
-        .tagline { font-size: 13px; color: rgba(255, 255, 255, 0.6); letter-spacing: 2px; text-transform: uppercase; margin-top: 8px; font-weight: 600; }
+        .tagline { font-size: 13px; color: rgba(255, 255, 255, 0.6); letter-spacing: 2px; text-transform: uppercase; margin-top: 8px; }
         body.light-mode .tagline { color: rgba(0, 0, 0, 0.5); }
 
         .card {
             background: var(--card-dark); border: 1px solid var(--border-dark); border-radius: 24px;
             padding: 40px; backdrop-filter: blur(20px);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(205, 4, 11, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(244, 185, 66, 0.1);
             transition: all 0.4s ease; position: relative; overflow: hidden;
         }
 
@@ -133,11 +123,11 @@
 
         .card::before {
             content: ''; position: absolute; top: -2px; left: -2px; right: -2px; bottom: -2px;
-            background: linear-gradient(45deg, transparent, var(--vz-red), transparent);
+            background: linear-gradient(45deg, transparent, var(--primary-yellow), transparent);
             z-index: -1; opacity: 0; transition: opacity 0.3s ease; border-radius: 26px;
         }
 
-        .card:hover::before { opacity: 0.15; animation: border-glow 2s linear infinite; }
+        .card:hover::before { opacity: 0.2; animation: border-glow 2s linear infinite; }
         @keyframes border-glow { 0%, 100% { filter: blur(10px); } 50% { filter: blur(20px); } }
 
         .card-header { text-align: center; margin-bottom: 30px; }
@@ -146,13 +136,13 @@
 
         .badge {
             display: inline-flex; align-items: center; gap: 6px;
-            background: rgba(205, 4, 11, 0.1); border: 1px solid var(--border-dark);
-            padding: 6px 12px; border-radius: 50px; font-size: 11px; color: var(--vz-red);
-            text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; font-weight: 700;
+            background: rgba(244, 185, 66, 0.1); border: 1px solid var(--border-dark);
+            padding: 6px 12px; border-radius: 50px; font-size: 11px; color: var(--primary-yellow);
+            text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; font-weight: 600;
         }
 
         .form-group { margin-bottom: 20px; }
-        .form-label { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; color: var(--vz-red); }
+        .form-label { display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; color: var(--primary-yellow); }
 
         .form-input {
             width: 100%; padding: 16px 20px; border: 2px solid var(--border-dark); border-radius: 12px;
@@ -162,35 +152,35 @@
         }
 
         body.light-mode .form-input { background: var(--input-bg-light); color: var(--text-light); border-color: var(--border-light); }
-        .form-input:focus { border-color: var(--vz-red); box-shadow: 0 0 0 4px var(--accent-glow); transform: translateY(-2px); }
+        .form-input:focus { border-color: var(--primary-yellow); box-shadow: 0 0 0 4px var(--accent-glow); transform: translateY(-2px); }
         .form-input.error { border-color: var(--error-red); box-shadow: 0 0 0 4px rgba(255, 59, 48, 0.2); }
 
         .hint { font-size: 12px; opacity: 0.6; margin-top: 6px; display: block; }
         
         .prefix-hint {
             display: inline-block;
-            background: rgba(205, 4, 11, 0.15);
-            color: var(--vz-red);
+            background: rgba(244, 185, 66, 0.15);
+            color: var(--primary-yellow);
             padding: 4px 8px;
             border-radius: 6px;
             font-size: 11px;
             font-weight: 700;
             margin-bottom: 8px;
-            border: 1px solid rgba(205, 4, 11, 0.2);
+            border: 1px solid rgba(244, 185, 66, 0.2);
         }
 
         .btn {
-            width: 100%; padding: 18px; background: linear-gradient(135deg, var(--vz-red) 0%, var(--vz-red-hover) 100%);
-            color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700;
+            width: 100%; padding: 18px; background: linear-gradient(135deg, #F4B942 0%, #E5AA33 100%);
+            color: #0a0a0f; border: none; border-radius: 12px; font-size: 16px; font-weight: 700;
             cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px;
-            margin-top: 10px; box-shadow: 0 4px 15px rgba(205, 4, 11, 0.3);
+            margin-top: 10px; box-shadow: 0 4px 15px rgba(244, 185, 66, 0.3);
             display: flex; align-items: center; justify-content: center; gap: 10px;
             touch-action: manipulation;
             position: relative;
             overflow: hidden;
         }
 
-        .btn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(205, 4, 11, 0.5); }
+        .btn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(244, 185, 66, 0.5); }
         .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
         
         .btn::after {
@@ -200,15 +190,15 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
             transform: rotate(30deg);
             transition: all 0.6s;
         }
         
         .btn:hover::after { left: 100%; }
 
-        .btn-secondary { background: transparent; border: 2px solid var(--vz-red); color: var(--vz-red); margin-top: 15px; }
-        .btn-secondary:hover { background: rgba(205, 4, 11, 0.1); }
+        .btn-secondary { background: transparent; border: 2px solid var(--primary-yellow); color: var(--primary-yellow); margin-top: 15px; }
+        .btn-secondary:hover { background: rgba(244, 185, 66, 0.1); }
 
         .success-state { display: none; text-align: center; animation: fadeIn 0.5s ease; }
         .success-state.show { display: block; }
@@ -227,7 +217,7 @@
 
         body.light-mode .phone-preview { background: rgba(0, 0, 0, 0.05); border-color: var(--border-light); }
 
-        .phone-header { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--vz-red); margin-bottom: 10px; font-weight: 700; }
+        .phone-header { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--primary-yellow); margin-bottom: 10px; font-weight: 600; }
 
         .phone-screen {
             background: rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 15px;
@@ -237,7 +227,7 @@
 
         body.light-mode .phone-screen { background: rgba(255, 255, 255, 0.8); color: #1a1a1f; }
 
-        .safety-prefix { color: var(--vz-red); font-weight: 800; background: rgba(205, 4, 11, 0.1); padding: 2px 6px; border-radius: 4px; }
+        .safety-prefix { color: var(--primary-yellow); font-weight: 700; }
 
         .security-footer {
             margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border-dark);
@@ -248,8 +238,8 @@
         body.light-mode .security-footer { border-top-color: var(--border-light); }
 
         .spinner {
-            width: 20px; height: 20px; border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%; border-top-color: white;
+            width: 20px; height: 20px; border: 3px solid rgba(10, 10, 15, 0.3);
+            border-radius: 50%; border-top-color: #0a0a0f;
             animation: spin 1s ease-in-out infinite; display: none;
         }
 
@@ -279,31 +269,16 @@
             75% { transform: translateX(5px); }
         }
 
-        body.light-mode .spam-notice { background: rgba(205, 4, 11, 0.03); border-color: var(--border-light); }
-
-        .meeting-cta {
-            background: rgba(205, 4, 11, 0.1); border: 1px solid var(--border-dark);
-            border-radius: 12px; padding: 20px; margin-top: 25px; text-align: center;
-        }
-
-        body.light-mode .meeting-cta { background: rgba(205, 4, 11, 0.05); border-color: var(--border-light); }
-
-        .meeting-cta h3 { font-size: 18px; margin-bottom: 10px; color: var(--vz-red); }
-        .meeting-cta p { font-size: 14px; margin-bottom: 15px; opacity: 0.8; }
-
-        .calendly-link { color: var(--vz-red); text-decoration: none; font-weight: 700; border-bottom: 1px solid var(--vz-red); padding-bottom: 2px; transition: all 0.3s; }
-        .calendly-link:hover { opacity: 0.8; }
-
         .code-display {
             font-family: 'SF Mono', Monaco, monospace;
-            background: rgba(205, 4, 11, 0.1);
-            border: 1px dashed var(--vz-red);
+            background: rgba(244, 185, 66, 0.1);
+            border: 1px dashed var(--primary-yellow);
             padding: 12px;
             border-radius: 8px;
             margin: 10px 0;
             font-size: 18px;
             font-weight: 700;
-            color: var(--vz-red);
+            color: var(--primary-yellow);
             letter-spacing: 1px;
         }
 
@@ -311,8 +286,6 @@
             .card { padding: 30px 20px; } 
             .card-header h1 { font-size: 24px; } 
             .theme-toggle { top: 10px; right: 10px; padding: 6px 12px; font-size: 11px; }
-            .logo-icon { width: 60px; height: 60px; }
-            .vz-logo-inner { font-size: 24px; }
         }
     </style>
 </head>
@@ -328,21 +301,19 @@
 
     <div class="container">
         <div class="logo-container">
-            <div class="logo-icon">
-                <div class="vz-logo-inner">Vz</div>
-            </div>
-            <div class="logo-text">Verizon <span>Secure</span></div>
-            <div class="tagline">Verified Business Communications</div>
+            <div class="logo-icon"><div class="shield"></div></div>
+            <div class="logo-text">Mobile<span>Objex</span></div>
+            <div class="tagline">Secure Mobile Messaging</div>
         </div>
 
         <div class="card" id="verificationForm">
             <div class="card-header">
                 <div class="badge">
                     <span>🛡️</span>
-                    <span>Anti-Phishing Demo</span>
+                    <span>Secure Access</span>
                 </div>
-                <h1>Experience Verified Messaging</h1>
-                <p>Register your mobile number to receive a verified secure message with your personal <strong>VzW Safety Key</strong>.</p>
+                <h1>Experience Secure Messaging</h1>
+                <p>Register your mobile number to receive a verified secure message with your personal <strong>VzW Safe Key</strong> prefix.</p>
             </div>
 
             <div class="error-message" id="errorMsg">
@@ -358,7 +329,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Your Safety Code *</label>
+                    <label class="form-label">Your Safe Key *</label>
                     <div class="prefix-hint">Will be automatically prefixed with: <strong>VzW</strong></div>
                     <input type="text" class="form-input" id="safetyCode" placeholder="e.g., York123" required minlength="4" maxlength="6" autocomplete="off">
                     <span class="hint">4-6 characters (Final code: VzW<span id="livePreview"></span>)</span>
@@ -366,28 +337,28 @@
 
                 <button type="submit" class="btn" id="submitBtn">
                     <span class="spinner"></span>
-                    <span class="btn-text">📱 Send Verified Message</span>
+                    <span class="btn-text">📱 Send Secure Message</span>
                 </button>
             </form>
 
             <div class="security-footer">
                 <span>🛡️</span>
-                <span>End-to-end encrypted • Verizon Secure Network</span>
+                <span>End-to-end encrypted • Direct secure access</span>
             </div>
         </div>
 
         <div class="card success-state" id="successState">
             <div class="success-icon">✅</div>
             <h2>Message Sent Successfully</h2>
-            <p>Check your phone! You've received a verified message demonstrating how Verizon authenticates legitimate business communications.</p>
+            <p>Check your phone! You've received a secure message demonstrating how Mobile Objex verifies legitimate communications.</p>
             
             <div class="code-display" id="fullCodeDisplay">##VzWXXXX##</div>
             
-            <div class="spam-notice" style="background: rgba(205, 4, 11, 0.05); border: 1px solid var(--border-dark); border-radius: 12px; padding: 16px; margin: 20px 0; text-align: left;">
+            <div class="spam-notice" style="background: rgba(244, 185, 66, 0.05); border: 1px solid var(--border-dark); border-radius: 12px; padding: 16px; margin: 20px 0; text-align: left;">
                 <div style="display: flex; align-items: flex-start; gap: 12px;">
                     <span style="font-size: 20px;">📧</span>
                     <div>
-                        <strong style="color: var(--vz-red); font-size: 13px; text-transform: uppercase;">Didn't receive it?</strong>
+                        <strong style="color: var(--primary-yellow); font-size: 13px; text-transform: uppercase;">Didn't receive it?</strong>
                         <p style="margin: 4px 0 0 0; font-size: 13px; opacity: 0.8; line-height: 1.4;">Check spam/junk folders. SMS delivery may take 30-60 seconds.</p>
                     </div>
                 </div>
@@ -396,18 +367,18 @@
             <div class="phone-preview">
                 <div class="phone-header">
                     <span>📱</span>
-                    <span>VERIFIED MESSAGE PREVIEW</span>
+                    <span>MESSAGE PREVIEW</span>
                 </div>
                 <div class="phone-screen" id="messagePreview">
                     <span class="safety-prefix" id="previewCode">##VzWXXXX##</span> 
-                    This is how verified messages from Verizon appear. The VzW Safety Key prefix authenticates legitimate communications and prevents phishing attempts.
+                    This is how verified messages from Mobile Objex appear. The VzW Safe Key prefix authenticates legitimate communications.
                 </div>
             </div>
 
-            <div class="meeting-cta">
-                <h3>Enterprise Security Solutions</h3>
-                <p>See how Verizon can protect your organization's customer communications.</p>
-                <a href="https://www.verizon.com/business/products/security/" target="_blank" class="calendly-link">Learn More →</a>
+            <div class="meeting-cta" style="background: rgba(244, 185, 66, 0.1); border: 1px solid var(--border-dark); border-radius: 12px; padding: 20px; margin-top: 25px; text-align: center;">
+                <h3 style="font-size: 18px; margin-bottom: 10px; color: var(--primary-yellow);">Interested in Learning More?</h3>
+                <p style="font-size: 14px; margin-bottom: 15px; opacity: 0.8;">See how Mobile Objex can protect your organization's communications.</p>
+                <a href="https://calendly.com/mobile-objex" target="_blank" style="color: var(--primary-yellow); text-decoration: none; font-weight: 600; border-bottom: 1px solid var(--primary-yellow); padding-bottom: 2px;">Schedule a Meeting →</a>
             </div>
 
             <button class="btn btn-secondary" onclick="resetForm()" style="margin-top: 20px;">
@@ -416,18 +387,17 @@
 
             <div class="security-footer">
                 <span>🔒</span>
-                <span>Delivered securely via Verizon Network</span>
+                <span>Delivered securely via Mobile Objex</span>
             </div>
         </div>
     </div>
 
 <script>
   // ==========================================
-  // CONFIGURATION - UPDATE THIS URL
+  // CONFIGURATION
   // ==========================================
-  // Replace with your Cloudflare Worker URL (e.g., https://your-worker.your-subdomain.workers.dev)
   const WORKER_URL = 'https://mobile-objex-api.roshanpatwari25.workers.dev';
-  
+
   function normalizeUSPhoneToE164(raw) {
     const digits = String(raw || "").replace(/\D/g, "");
     if (digits.length === 10) return "+1" + digits;
@@ -496,10 +466,10 @@
     btn.classList.add("loading");
     btn.disabled = true;
 
-    const messageContent = "This is how verified messages from Verizon appear. The VzW Safety Key prefix authenticates legitimate business communications and stops phishing attempts before they reach consumers.";
+    const messageContent = "This is how verified messages from Mobile Objex appear. The VzW Safe Key prefix authenticates legitimate communications and stops scams before they reach consumers.";
 
     try {
-      // Call Cloudflare Worker instead of Firebase/Textbelt directly
+      // Call Cloudflare Worker
       const response = await fetch(`${WORKER_URL}/api/send-sms`, {
         method: 'POST',
         headers: { 
