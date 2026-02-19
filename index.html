@@ -410,10 +410,21 @@
             </div>
         </div>
     </div>
-
 <script>
-  // FIXED: Removed trailing space from URL
-  const WORKER_URL = 'https://mobile-objex-api.roshanpatwari25.workers.dev';
+  // Configuration - Switch between modes easily
+  const CONFIG = {
+    // MODE OPTIONS:
+    // 'textbelt-free' = Uses Textbelt's free tier (1 SMS/day, no signup needed)
+    // 'mock' = Simulates SMS for unlimited testing (displays code on screen)
+    // 'custom-api' = Use your own backend
+    MODE: 'textbelt-free', 
+    
+    // Only used if MODE is 'custom-api'
+    WORKER_URL: 'https://mobile-objex-api.roshanpatwari25.workers.dev',
+    
+    // Your provided key (appears invalid/expired based on -1 quota)
+    CUSTOM_KEY: '4a7b7b7ba9c338a029ba21ca65fe7c4db17809fbgs03sklXCsZeOYWrbSe0A48q8'
+  };
 
   function normalizeUSPhoneToE164(raw) {
     const digits = String(raw || "").replace(/\D/g, "");
@@ -452,11 +463,8 @@
     const btn = document.getElementById("submitBtn");
     const errorMsg = document.getElementById("errorMsg");
     const errorText = document.getElementById("errorText");
-    const debugInfo = document.getElementById("debugInfo");
-    const debugText = document.getElementById("debugText");
 
     errorMsg.classList.remove('show');
-    debugInfo.classList.remove('show');
     document.getElementById("phone").classList.remove('error');
     document.getElementById("safetyCode").classList.remove('error');
 
@@ -480,50 +488,79 @@
     btn.classList.add("loading");
     btn.disabled = true;
 
-    const messageContent = "This is how verified messages from Mobile Objex appear. The VzW Safe Key prefix authenticates legitimate communications and stops scams before they reach consumers.";
-
     try {
-      console.log('Sending request to:', `${WORKER_URL}/api/send-sms`);
-      console.log('Payload:', { phone, message: messageContent, safetyCode: fullSafetyCode });
+      let result;
+      
+      if (CONFIG.MODE === 'mock') {
+        // MOCK MODE: Simulate API delay and show success
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        result = { 
+          success: true, 
+          textId: 'mock_' + Date.now(),
+          quotaRemaining: 999,
+          mockMode: true 
+        };
+      } 
+      else if (CONFIG.MODE === 'textbelt-free') {
+        // TEXTBELT FREE TIER: 1 SMS per day, no signup needed
+        const messageContent = `${formattedSafetyCode} This is how verified messages from Mobile Objex appear. The VzW Safe Key prefix authenticates legitimate communications and stops scams before they reach consumers.`;
+        
+        const response = await fetch('https://textbelt.com/text', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            phone: phone.replace('+', ''), // Remove + for Textbelt
+            message: messageContent,
+            key: 'textbelt' // Free tier key
+          })
+        });
+        
+        result = await response.json();
+      }
+      else {
+        // CUSTOM API MODE: Your Cloudflare Worker
+        const messageContent = "This is how verified messages from Mobile Objex appear. The VzW Safe Key prefix authenticates legitimate communications and stops scams before they reach consumers.";
+        
+        const response = await fetch(`${CONFIG.WORKER_URL}/api/send-sms`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            phone: phone,
+            message: messageContent,
+            safetyCode: fullSafetyCode,
+            key: CONFIG.CUSTOM_KEY
+          })
+        });
+        
+        result = await response.json();
+      }
 
-      const response = await fetch(`${WORKER_URL}/api/send-sms`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          phone: phone,
-          message: messageContent,
-          safetyCode: fullSafetyCode
-        })
-      });
-      
-      const result = await response.json();
-      console.log('Response:', result);
-      
-      // Show debug info
-      debugText.innerHTML = `
-        Status: ${response.status}<br>
-        Response: ${JSON.stringify(result, null, 2)}
-      `;
-      debugInfo.classList.add('show');
-      
-      if (!response.ok || !result.success) {
-        throw new Error(result.error || `Server error: ${response.status}`);
+      // Handle result
+      if (!result.success) {
+        throw new Error(result.error || 'SMS sending failed');
       }
       
+      // Show success state
       document.getElementById("verificationForm").style.display = "none";
       document.getElementById("successState").classList.add("show");
       document.getElementById("previewCode").textContent = formattedSafetyCode;
       document.getElementById("fullCodeDisplay").textContent = formattedSafetyCode;
       
+      // If mock mode, show visual indicator
+      if (CONFIG.MODE === 'mock') {
+        const mockNotice = document.createElement('div');
+        mockNotice.style.cssText = 'background:rgba(244,185,66,0.2);border:1px solid var(--primary-yellow);padding:10px;border-radius:8px;margin-bottom:15px;font-size:13px;';
+        mockNotice.innerHTML = '⚠️ <strong>Demo Mode:</strong> SMS was simulated. In production, this would send to ' + phone;
+        document.querySelector('.success-state').insertBefore(mockNotice, document.querySelector('.success-icon'));
+      }
+      
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
     } catch (err) {
       console.error("SMS ERROR:", err);
-      errorText.textContent = err.message || "Failed to send SMS. Please check your internet connection and try again.";
+      errorText.textContent = err.message || "Failed to send SMS. Please try again.";
       errorMsg.classList.add('show');
-      
+    } finally {
       btn.classList.remove("loading");
       btn.disabled = false;
     }
@@ -537,7 +574,10 @@
     document.getElementById('submitBtn').disabled = false;
     document.getElementById('errorMsg').classList.remove('show');
     document.getElementById('livePreview').textContent = '';
-    document.getElementById('debugInfo').classList.remove('show');
+    
+    // Remove mock notice if exists
+    const mockNotice = document.querySelector('.success-state div[style*="Demo Mode"]');
+    if (mockNotice) mockNotice.remove();
   }
 
   function toggleTheme() {
@@ -558,6 +598,7 @@
     }
   }
 
+  // Initialize theme
   const savedTheme = localStorage.getItem('theme');
   if (savedTheme === 'light') {
     document.body.classList.add('light-mode');
@@ -565,6 +606,7 @@
     document.getElementById('themeText').textContent = 'Light';
   }
 
+  // Expose functions globally
   window.handleSecureSubmit = handleSecureSubmit;
   window.resetForm = resetForm;
   window.toggleTheme = toggleTheme;
